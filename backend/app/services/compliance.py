@@ -44,11 +44,14 @@ class ComplianceReportService:
         return self._build_fallback_report(vector_results, payload)
 
     def _build_filters(self, payload: ComplianceReportRequest) -> dict:
-        filters = {"industry": payload.industry, "company_size": payload.company_size}
-        if "ca" in payload.location.lower() or "california" in payload.location.lower():
-            filters["state"] = "CA"
-        if "alameda" in payload.location.lower():
-            filters["county"] = "Alameda"
+        filters = {"industry": payload.industry, "function": "Storage"}
+        location = payload.location.lower()
+        if "ca" in location or "california" in location:
+            filters["state"] = "California"
+        if "alameda" in location:
+            filters["county"] = "Alameda County"
+        if "berkeley" in location:
+            filters["city_jurisdiction"] = "Berkeley"
         return filters
 
     async def _generate_with_llm(
@@ -90,11 +93,10 @@ class ComplianceReportService:
     ) -> ComplianceReportResponse:
         sources = [
             SourceCitation(
-                source_id=f"doc:{item['document_id']}",
-                source_type="vector_document",
-                title=item["title"],
-                url=item["source_url"],
-                excerpt=item["chunk_text"][:240],
+                source_id=f"reg:{item['regulation_id']}",
+                source_type="regulation_vector",
+                title=item["regulation_name"],
+                excerpt=item["description"][:240],
             )
             for item in vector_results
         ]
@@ -105,19 +107,17 @@ class ComplianceReportService:
                     source_id="generated:no-results",
                     source_type="system_notice",
                     title="No matching regulatory seeds found",
-                    excerpt=f"No local seed documents matched {payload.industry} in {payload.location}.",
+                    excerpt=f"No local seeded regulations matched {payload.industry} in {payload.location}.",
                 )
             ]
 
         primary_citation = [sources[0].source_id]
         compliance_items = [
             ComplianceRequirement(
-                regulation_id=item["regulation_id"],
-                certification_clause=(
-                    f"{item['agency']} requirements apply to {payload.industry} operations in {payload.location}."
-                ),
-                business_activity="chemical inventory management",
-                citations=[f"doc:{item['document_id']}"],
+                regulation_id=item["regulation_code_reference"],
+                certification_clause=item["description"],
+                business_activity=item["action_required"],
+                citations=[f"reg:{item['regulation_id']}"],
             )
             for item in vector_results[:3]
         ] or [
@@ -129,37 +129,25 @@ class ComplianceReportService:
             )
         ]
 
-        required_documents = []
-        required_workflows = []
-        seen_documents: set[str] = set()
-        seen_workflows: set[str] = set()
-        for item in vector_results:
-            citation = [f"doc:{item['document_id']}"]
-            for document_type in item["required_document_types"]:
-                if document_type in seen_documents:
-                    continue
-                seen_documents.add(document_type)
-                required_documents.append(
-                    RequiredDocument(
-                        document_type=document_type,
-                        description=f"Maintain {document_type.lower()} aligned to {item['regulation_id']}.",
-                        required_by=item["regulation_id"],
-                        citations=citation,
-                    )
-                )
-            for workflow_name in item["required_workflows"]:
-                if workflow_name in seen_workflows:
-                    continue
-                seen_workflows.add(workflow_name)
-                required_workflows.append(
-                    RequiredWorkflow(
-                        workflow_name=workflow_name,
-                        description=f"Implement {workflow_name} controls for {payload.industry} operations.",
-                        frequency="Defined by applicable regulation",
-                        responsible_party="Compliance lead",
-                        citations=citation,
-                    )
-                )
+        required_documents = [
+            RequiredDocument(
+                document_type="Regulation action record",
+                description=item["action_required"],
+                required_by=item["regulation_code_reference"],
+                citations=[f"reg:{item['regulation_id']}"],
+            )
+            for item in vector_results[:3]
+        ]
+        required_workflows = [
+            RequiredWorkflow(
+                workflow_name=item["regulation_name"],
+                description=item["action_required"],
+                frequency="Per applicable regulation",
+                responsible_party="Compliance lead",
+                citations=[f"reg:{item['regulation_id']}"],
+            )
+            for item in vector_results[:3]
+        ]
 
         regulatory_dependencies = [
             RegulatoryDependency(

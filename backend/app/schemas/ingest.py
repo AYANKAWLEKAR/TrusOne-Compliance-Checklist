@@ -3,27 +3,46 @@ from datetime import date
 from pydantic import BaseModel, Field
 
 
-class SeedDocument(BaseModel):
+class RegulationSeedRow(BaseModel):
+    industry: str
+    function: str
+    state: str
+    county: str
+    city_jurisdiction: str
+    level: str
+    regulation_name: str
+    regulation_code_reference: str
+    description: str
+    action_required: str
+    external_metadata: dict = Field(default_factory=dict)
+
+
+class WorkbookIngestRequest(BaseModel):
+    workbook_path: str = Field(..., min_length=1)
+
+
+class WorkbookIngestResponse(BaseModel):
+    parsed_regulations: int
+    inserted_regulations: int
+    updated_regulations: int
+    inserted_vectors: int
+
+
+class SourceDocumentIngestRequest(BaseModel):
     title: str
-    source_url: str
-    agency: str
-    regulation_id: str
-    jurisdiction: str
-    state: str | None = None
-    county: str | None = None
-    industry_sectors: list[str]
-    min_employee_size: int | None = None
-    max_employee_size: int | None = None
+    source_url: str | None = None
+    source_type: str
+    publisher_agency: str | None = None
+    publication_date: date | None = None
     effective_date: date | None = None
-    full_text: str = Field(..., min_length=1)
-    extra_metadata: dict = Field(default_factory=dict)
-    required_document_types: list[str] = Field(default_factory=list)
-    required_workflows: list[str] = Field(default_factory=list)
+    checksum: str | None = None
+    external_identifier: str | None = None
+    mime_type: str | None = None
+    raw_text: str | None = None
+    storage_reference: str | None = None
+    ingestion_status: str = "pending"
+    external_metadata: dict = Field(default_factory=dict)
 
 
-class DocumentIngestRequest(BaseModel):
-    documents: list[SeedDocument]
-
-
-class IngestResponse(BaseModel):
+class SourceDocumentIngestResponse(BaseModel):
     inserted_documents: int

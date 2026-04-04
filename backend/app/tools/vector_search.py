@@ -3,7 +3,7 @@ from __future__ import annotations
 from sqlalchemy import Select, select
 from sqlalchemy.orm import Session
 
-from app.db.models import Document, DocumentChunk
+from app.db.models import Regulation, RegulationVector
 
 
 class VectorSearchTool:
@@ -13,44 +13,46 @@ class VectorSearchTool:
     def search(self, query_embedding: list[float], filters: dict | None = None, top_k: int = 5) -> list[dict]:
         filters = filters or {}
         statement: Select = (
-            select(DocumentChunk, Document)
-            .join(Document, Document.id == DocumentChunk.document_id)
-            .order_by(DocumentChunk.embedding.cosine_distance(query_embedding))
+            select(RegulationVector, Regulation)
+            .join(Regulation, Regulation.id == RegulationVector.regulation_id)
+            .order_by(RegulationVector.embedding.cosine_distance(query_embedding))
             .limit(top_k)
         )
 
-        if jurisdiction := filters.get("jurisdiction"):
-            statement = statement.where(Document.jurisdiction == jurisdiction)
+        if level := filters.get("level"):
+            statement = statement.where(Regulation.level.ilike(level))
         if state := filters.get("state"):
-            statement = statement.where(Document.state == state)
+            statement = statement.where(
+                (Regulation.applies_to_all_states.is_(True)) | (Regulation.state.ilike(state))
+            )
         if county := filters.get("county"):
-            statement = statement.where(Document.county == county)
+            statement = statement.where(
+                (Regulation.applies_to_all_counties.is_(True)) | (Regulation.county.ilike(county))
+            )
+        if city := filters.get("city_jurisdiction"):
+            statement = statement.where(
+                (Regulation.applies_to_all_cities.is_(True)) | (Regulation.city_jurisdiction.ilike(city))
+            )
         if industry := filters.get("industry"):
-            statement = statement.where(Document.industry_sectors.any(industry))
-        if company_size := filters.get("company_size"):
-            minimum, maximum = self._parse_company_size(company_size)
-            if minimum is not None:
-                statement = statement.where(
-                    (Document.max_employee_size.is_(None)) | (Document.max_employee_size >= minimum)
-                )
-            if maximum is not None:
-                statement = statement.where(
-                    (Document.min_employee_size.is_(None)) | (Document.min_employee_size <= maximum)
-                )
+            statement = statement.where(Regulation.industry.ilike(industry))
+        if function := filters.get("function"):
+            statement = statement.where(Regulation.function.ilike(function))
 
         rows = self.db.execute(statement).all()
         results: list[dict] = []
-        for chunk, document in rows:
+        for vector, regulation in rows:
             results.append(
                 {
-                    "document_id": document.id,
-                    "title": document.title,
-                    "regulation_id": document.regulation_id,
-                    "source_url": document.source_url,
-                    "agency": document.agency,
-                    "chunk_text": chunk.chunk_text,
-                    "required_document_types": document.required_document_types,
-                    "required_workflows": document.required_workflows,
+                    "regulation_id": regulation.id,
+                    "regulation_name": regulation.regulation_name,
+                    "regulation_code_reference": regulation.regulation_code_reference,
+                    "level": regulation.level,
+                    "state": regulation.state,
+                    "county": regulation.county,
+                    "city_jurisdiction": regulation.city_jurisdiction,
+                    "description": regulation.description,
+                    "action_required": regulation.action_required,
+                    "search_text": vector.search_text,
                 }
             )
         return results

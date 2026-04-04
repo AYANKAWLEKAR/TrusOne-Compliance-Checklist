@@ -22,10 +22,10 @@ Apply schema migrations through Supabase CLI from the repo root:
 supabase db push
 ```
 
-Seed ingestion remains separate and should only be run intentionally against the shared database:
+Checklist import remains separate and should only be run intentionally against the shared database:
 
 ```bash
-uv run python -m app.ingestion.seed
+uv run python -m app.ingestion.import_checklist /absolute/path/to/chemical_storage_compliance.xlsx
 ```
 
 ## Database (Supabase)

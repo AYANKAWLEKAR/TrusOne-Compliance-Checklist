@@ -1,19 +1,22 @@
 from __future__ import annotations
 
 import asyncio
+import sys
 
 from app.db.session import SessionLocal
-from app.schemas.ingest import SeedDocument
 from app.services.ingestion import IngestionService
-from app.ingestion.seed_data import SEED_DOCUMENTS
 
 
 async def main() -> None:
+    if len(sys.argv) < 2:
+        raise SystemExit("Usage: python -m app.ingestion.import_checklist /path/to/checklist.xlsx")
+
+    workbook_path = sys.argv[1]
     db = SessionLocal()
     try:
         service = IngestionService(db)
-        documents = [SeedDocument.model_validate(item) for item in SEED_DOCUMENTS]
-        await service.ingest_documents(documents)
+        result = await service.ingest_regulation_workbook(workbook_path)
+        print(result)
     finally:
         db.close()
 
