@@ -9,6 +9,13 @@ uv sync
 uv run uvicorn app.main:app --reload --port 8000
 ```
 
+`pyproject.toml` and `uv.lock` are the source of truth. For `pip`, use `requirements.txt` (runtime) or `requirements-dev.txt` (includes pytest, ruff). Regenerate after dependency changes:
+
+```bash
+uv export --no-dev --format requirements-txt --no-hashes -o requirements.txt
+uv export --all-groups --format requirements-txt --no-hashes -o requirements-dev.txt
+```
+
 Apply schema migrations through Supabase CLI from the repo root:
 
 ```bash
