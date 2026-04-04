@@ -1,0 +1,2984 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TrusOne - Compliance Execution</title>
+    <style>
+        :root {
+            --bg-canvas: oklch(0.97 0.008 255);
+            --bg-surface: oklch(0.995 0.003 255);
+            --bg-surface-alt: oklch(0.972 0.009 255);
+            --bg-emphasis: oklch(0.26 0.02 255);
+
+            --text-primary: oklch(0.25 0.02 255);
+            --text-secondary: oklch(0.43 0.025 255);
+            --text-tertiary: oklch(0.5 0.02 255);
+            --text-inverse: oklch(0.985 0.003 255);
+
+            --border-light: oklch(0.91 0.01 255);
+            --border-dark: oklch(0.82 0.015 255);
+
+            --accent-strong: oklch(0.31 0.04 250);
+            --accent-soft: oklch(0.95 0.02 245);
+            --accent-warning: oklch(0.74 0.14 80);
+            --accent-warning-ink: oklch(0.34 0.06 75);
+            --accent-purple: oklch(0.55 0.2 270);
+            --accent-purple-soft: oklch(0.62 0.18 280);
+            --accent-error: oklch(0.52 0.18 25);
+
+            --radius-sm: 6px;
+            --radius-md: 12px;
+            --radius-lg: 20px;
+            --radius-pill: 9999px;
+
+            --shadow-subtle: 0 1px 2px 0 rgb(15 23 42 / 0.05);
+            --shadow-card: 0 18px 40px -26px rgb(15 23 42 / 0.28);
+            --shadow-focus: 0 0 0 4px color-mix(in srgb, var(--accent-soft) 80%, white);
+            --overlay-bg: oklch(0.15 0.02 255 / 0.45);
+            --shadow-modal: 0 24px 60px -30px oklch(0.15 0.02 255 / 0.4);
+            --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+            --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
+            --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+            --duration-fast: 140ms;
+            --duration-medium: 260ms;
+            --duration-slow: 420ms;
+
+            --font-sans: "Avenir Next", "Segoe UI Variable", "SF Pro Text", "Helvetica Neue", sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        body {
+            background-color: var(--bg-canvas);
+            color: var(--text-primary);
+            font-family: var(--font-sans);
+            font-size: 15px;
+            line-height: 1.5;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .top-banner {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: var(--bg-emphasis);
+            color: var(--text-inverse);
+            flex-shrink: 0;
+            padding: 14px clamp(16px, 3vw, 32px);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px 24px;
+            flex-wrap: wrap;
+            transform: translateY(-10px);
+            opacity: 0;
+            transition: transform var(--duration-slow) var(--ease-out-expo), opacity var(--duration-slow) var(--ease-out-quart);
+        }
+
+        .top-banner-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .top-banner-logo {
+            width: 32px;
+            height: 32px;
+            background: var(--bg-surface);
+            border-radius: 6px;
+            display: grid;
+            place-items: center;
+            color: var(--bg-emphasis);
+            font-weight: 800;
+            font-size: 13px;
+            letter-spacing: -0.03em;
+        }
+
+        .top-banner-wordmark {
+            font-size: 17px;
+            font-weight: 700;
+            letter-spacing: -0.03em;
+        }
+
+        .top-banner-center {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 13px;
+            font-weight: 500;
+            color: color-mix(in srgb, var(--text-inverse) 78%, transparent);
+        }
+
+        .promo-badge {
+            background: color-mix(in srgb, var(--accent-warning) 22%, white);
+            padding: 4px 10px;
+            border-radius: 9999px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--accent-warning-ink);
+        }
+
+        @media (max-width: 900px) {
+            .top-banner {
+                align-items: flex-start;
+            }
+
+            .top-banner-center {
+                order: 3;
+                width: 100%;
+            }
+        }
+
+        .top-banner-actions {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .top-banner-btn {
+            background: var(--bg-surface);
+            color: var(--bg-emphasis);
+            border: none;
+            padding: 10px 18px;
+            border-radius: 9999px;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            min-height: 44px;
+            transition: background var(--duration-fast) var(--ease-out-quart), transform var(--duration-fast) var(--ease-out-quart), box-shadow var(--duration-fast) var(--ease-out-quart);
+        }
+
+        .top-banner-btn:hover {
+            background: color-mix(in srgb, var(--bg-surface) 86%, var(--accent-soft));
+            transform: translateY(-1px);
+            box-shadow: 0 10px 22px -18px oklch(0.25 0.02 255 / 0.6);
+        }
+
+        .top-banner-btn:active {
+            transform: scale(0.98);
+        }
+
+        .app-wrapper {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            padding: clamp(16px, 2vw, 24px);
+            overflow: visible;
+        }
+
+        .app-container {
+            display: grid;
+            grid-template-columns: minmax(300px, 360px) minmax(0, 1fr);
+            gap: 24px;
+            width: 100%;
+            max-width: 1280px;
+            align-items: start;
+        }
+
+        h1 { font-size: 20px; font-weight: 600; letter-spacing: -0.02em; }
+        h2 { font-size: 15px; font-weight: 600; color: var(--text-primary); margin-bottom: 16px; display: flex; align-items: center; gap: 8px;}
+        h3 { font-size: 18px; font-weight: 600; letter-spacing: -0.02em; }
+        .metric-large { font-size: clamp(34px, 4vw, 44px); font-weight: 700; letter-spacing: -0.04em; line-height: 1; }
+        .label-sm { font-size: 12px; font-weight: 500; color: var(--text-secondary); }
+        .label-caps { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-tertiary); }
+
+        .card {
+            background: var(--bg-surface);
+            border-radius: var(--radius-md);
+            padding: 24px;
+            box-shadow: var(--shadow-card);
+            border: 1px solid var(--border-light);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .icon {
+            width: 16px;
+            height: 16px;
+            stroke: currentColor;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            fill: none;
+        }
+
+        .config-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 28px;
+            position: sticky;
+            top: calc(var(--banner-height, 56px) + 16px);
+            opacity: 0;
+            transform: translateY(14px);
+            transition: opacity var(--duration-slow) var(--ease-out-quart), transform var(--duration-slow) var(--ease-out-expo);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand-logo {
+            width: 24px;
+            height: 24px;
+            background: var(--accent-strong);
+            border-radius: var(--radius-sm);
+            display: grid;
+            place-items: center;
+            color: var(--text-inverse);
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-wrapper .icon {
+            position: absolute;
+            left: 12px;
+            color: var(--text-tertiary);
+        }
+
+        input:not([type="hidden"]) {
+            width: 100%;
+            min-height: 48px;
+            padding: 12px 14px;
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-sm);
+            font-family: inherit;
+            font-size: 14px;
+            color: var(--text-primary);
+            background: var(--bg-surface);
+            transition: border-color 0.2s;
+        }
+
+        input:focus-visible, textarea:focus-visible,
+        button:focus-visible, a:focus-visible, .task-trigger:focus-visible,
+        .custom-checkbox:focus-visible {
+            outline: none;
+            border-color: var(--accent-strong);
+            box-shadow: var(--shadow-focus);
+        }
+
+        textarea {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-sm);
+            font-family: inherit;
+            font-size: 14px;
+            color: var(--text-primary);
+            background: var(--bg-surface);
+            transition: border-color 0.2s;
+            resize: vertical;
+            min-height: 112px;
+            line-height: 1.5;
+        }
+
+        .combobox {
+            position: relative;
+        }
+
+        .combobox-trigger {
+            width: 100%;
+            min-height: 48px;
+            padding: 12px 42px 12px 40px;
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-sm);
+            background: var(--bg-surface);
+            color: var(--text-primary);
+            font: inherit;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            text-align: left;
+            cursor: pointer;
+            transition: border-color var(--duration-fast) var(--ease-out-quart), box-shadow var(--duration-fast) var(--ease-out-quart), transform var(--duration-fast) var(--ease-out-quart), background var(--duration-fast) var(--ease-out-quart);
+        }
+
+        .combobox-trigger:hover {
+            background: color-mix(in srgb, var(--accent-soft) 16%, var(--bg-surface));
+        }
+
+        .combobox-trigger:active {
+            transform: scale(0.992);
+        }
+
+        .combobox-trigger-value {
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .combobox-trigger-placeholder {
+            color: var(--text-secondary);
+        }
+
+        .combobox-trigger-icon {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+            color: var(--text-tertiary);
+            width: 16px;
+            height: 16px;
+            stroke: currentColor;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            fill: none;
+            flex-shrink: 0;
+            transition: transform var(--duration-medium) var(--ease-out-quart), color var(--duration-fast) var(--ease-out-quart);
+        }
+
+        .combobox.open .combobox-trigger {
+            border-color: var(--accent-strong);
+            box-shadow: var(--shadow-focus);
+        }
+
+        .combobox.open .combobox-trigger-icon {
+            transform: translateY(-50%) rotate(180deg);
+            color: var(--accent-strong);
+        }
+
+        .combobox-panel {
+            position: absolute;
+            top: calc(100% + 10px);
+            left: 0;
+            right: 0;
+            z-index: 40;
+            background: var(--bg-surface);
+            border: 1px solid var(--border-light);
+            border-radius: 16px;
+            box-shadow: var(--shadow-card);
+            padding: 12px;
+            display: none;
+            flex-direction: column;
+            gap: 10px;
+            transform-origin: top center;
+        }
+
+        .combobox.open .combobox-panel {
+            display: flex;
+            animation: panelReveal var(--duration-medium) var(--ease-out-quint);
+        }
+
+        .combobox-search {
+            padding: 12px 14px;
+        }
+
+        .combobox-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .combobox-action {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            min-height: 40px;
+            padding: 8px 12px;
+            border-radius: 999px;
+            border: 1px solid var(--border-light);
+            background: color-mix(in srgb, var(--accent-soft) 72%, white);
+            color: var(--text-primary);
+            font: inherit;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .combobox-action svg {
+            width: 14px;
+            height: 14px;
+            stroke: currentColor;
+            stroke-width: 2;
+            fill: none;
+        }
+
+        .combobox-action--full {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .combobox-status {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .combobox-status[hidden] {
+            display: none;
+        }
+
+        .combobox-status.is-error {
+            color: var(--accent-error);
+        }
+
+        .combobox-options {
+            max-height: 280px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            padding-right: 2px;
+        }
+
+        .combobox-group-label {
+            padding: 10px 10px 4px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: var(--text-tertiary);
+        }
+
+        .combobox-option {
+            border: none;
+            background: transparent;
+            border-radius: 10px;
+            padding: 10px 12px;
+            text-align: left;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            cursor: pointer;
+            color: var(--text-primary);
+            transition: background var(--duration-fast) var(--ease-out-quart), transform var(--duration-fast) var(--ease-out-quart);
+        }
+
+        .combobox-option:hover,
+        .combobox-option.is-active {
+            background: color-mix(in srgb, var(--accent-soft) 66%, white);
+            transform: translateX(2px);
+        }
+
+        .combobox-option.is-selected {
+            background: color-mix(in srgb, var(--accent-soft) 84%, white);
+        }
+
+        .combobox-option-label {
+            font-size: 14px;
+            font-weight: 600;
+            line-height: 1.4;
+        }
+
+        .combobox-option-meta {
+            font-size: 12px;
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+
+        .combobox-empty {
+            padding: 12px;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .btn-primary {
+            background: var(--accent-strong);
+            color: var(--text-inverse);
+            border: none;
+            padding: 14px;
+            border-radius: var(--radius-pill);
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            transition: opacity var(--duration-fast) var(--ease-out-quart), transform var(--duration-fast) var(--ease-out-quart), box-shadow var(--duration-fast) var(--ease-out-quart);
+            margin-top: auto;
+            min-height: 48px;
+        }
+
+        .btn-primary:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+            box-shadow: 0 16px 28px -22px oklch(0.22 0.04 250 / 0.75);
+        }
+
+        .btn-primary:active {
+            transform: scale(0.985);
+        }
+
+        .results-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            padding-right: 8px;
+            min-width: 0;
+            opacity: 0;
+            transform: translateY(18px);
+            transition: opacity var(--duration-slow) var(--ease-out-quart), transform var(--duration-slow) var(--ease-out-expo);
+        }
+
+        .empty-state {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: center;
+            text-align: left;
+            gap: 16px;
+            color: var(--text-secondary);
+            padding: clamp(32px, 6vw, 64px);
+            border-radius: var(--radius-lg);
+            background:
+                radial-gradient(circle at top right, color-mix(in srgb, var(--accent-soft) 70%, transparent), transparent 34%),
+                var(--bg-surface);
+            border: 1px solid var(--border-light);
+            box-shadow: var(--shadow-card);
+            overflow: hidden;
+        }
+
+        .empty-state-icon {
+            width: 64px;
+            height: 64px;
+            background: var(--accent-soft);
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            margin-bottom: 8px;
+        }
+
+        .empty-state-icon svg {
+            width: 28px;
+            height: 28px;
+            stroke: var(--text-tertiary);
+            stroke-width: 1.5;
+            fill: none;
+        }
+
+        .empty-state h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .empty-state p {
+            font-size: 14px;
+            max-width: 360px;
+            line-height: 1.6;
+        }
+
+        .loading-state {
+            flex: 1;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 32px;
+            padding: 48px;
+        }
+
+        .progress-steps {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .progress-step {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            font-size: 14px;
+            color: var(--text-tertiary);
+            transition: color var(--duration-medium) var(--ease-out-quart), transform var(--duration-medium) var(--ease-out-quart);
+        }
+
+        .progress-step.active {
+            color: var(--text-primary);
+            font-weight: 500;
+            transform: translateX(4px);
+        }
+
+        .progress-step.done {
+            color: var(--text-secondary);
+        }
+
+        .step-indicator {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 2px solid var(--border-light);
+            position: relative;
+            flex-shrink: 0;
+            transition: background 0.3s ease, border-color 0.3s ease;
+        }
+
+        .progress-step.active .step-indicator,
+        .progress-step.done .step-indicator {
+            border-color: var(--accent-strong);
+            background: var(--accent-strong);
+        }
+
+        .step-indicator svg,
+        .step-indicator .spinner-wrapper {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .step-indicator svg {
+            width: 14px;
+            height: 14px;
+            stroke: var(--text-inverse);
+            stroke-width: 2.5;
+            fill: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .progress-step.done .step-indicator svg {
+            opacity: 1;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .spinner {
+            width: 14px;
+            height: 14px;
+            border: 2px solid color-mix(in srgb, var(--text-inverse) 30%, transparent);
+            border-top-color: var(--text-inverse);
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+
+        .spinner-wrapper {
+            display: none;
+        }
+
+        .progress-step.active .spinner-wrapper {
+            display: block;
+        }
+
+        .results-content {
+            display: none;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .results-content.visible {
+            display: flex;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: minmax(260px, 320px) minmax(0, 1fr);
+            gap: 24px;
+        }
+
+        .metric-card {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 18px;
+        }
+
+        .metric-note {
+            max-width: 18rem;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .progress-meter {
+            width: 100%;
+            height: 10px;
+            border-radius: 999px;
+            background: var(--accent-soft);
+            overflow: hidden;
+        }
+
+        .progress-meter-bar {
+            width: 25%;
+            height: 100%;
+            background: linear-gradient(90deg, color-mix(in srgb, var(--accent-strong) 78%, white), var(--accent-strong));
+            border-radius: inherit;
+        }
+
+        .sources-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .tag {
+            background: var(--bg-surface-alt);
+            border: 1px solid var(--border-light);
+            padding: 4px 10px;
+            border-radius: var(--radius-pill);
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .ai-text {
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-top: 8px;
+        }
+
+        /* Segment Control */
+        .segment-control {
+            display: flex;
+            background: var(--accent-soft);
+            border-radius: var(--radius-md);
+            padding: 4px;
+            margin-bottom: 24px;
+            width: fit-content;
+        }
+
+        .segment-btn {
+            min-height: 40px;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            transition: background var(--duration-fast) var(--ease-out-quart), color var(--duration-fast) var(--ease-out-quart), transform var(--duration-fast) var(--ease-out-quart);
+        }
+
+        .segment-btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .segment-btn.active {
+            background: var(--bg-surface);
+            color: var(--text-primary);
+            box-shadow: var(--shadow-subtle);
+            font-weight: 600;
+        }
+
+        .checklist-card {
+            flex: 1;
+        }
+
+        .list-header {
+            display: grid;
+            grid-template-columns: 44px 1fr auto;
+            padding-bottom: 12px;
+            border-bottom: 1px dashed var(--border-light);
+            margin-bottom: 16px;
+        }
+
+        .list-item {
+            display: grid;
+            grid-template-columns: 44px minmax(0, 1fr) auto;
+            align-items: start;
+            gap: 8px;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border-light);
+            border-radius: 12px;
+            transition: background var(--duration-fast) var(--ease-out-quart), transform var(--duration-fast) var(--ease-out-quart), box-shadow var(--duration-fast) var(--ease-out-quart);
+        }
+
+        .list-item[hidden] {
+            display: none !important;
+        }
+
+        .list-item:last-child {
+            border-bottom: none;
+        }
+
+        .list-item:hover {
+            background: color-mix(in srgb, var(--accent-soft) 55%, transparent);
+            transform: translateX(2px);
+        }
+
+        .task-trigger {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            min-width: 0;
+            min-height: 44px;
+            padding: 8px 0;
+            border: none;
+            background: transparent;
+            text-align: left;
+            color: inherit;
+            cursor: pointer;
+        }
+
+        .custom-checkbox {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s ease;
+            background: transparent;
+            padding: 0;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .custom-checkbox-indicator {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            border: 2px solid var(--border-dark);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: border-color 0.2s ease, background 0.2s ease;
+            background: var(--bg-surface);
+        }
+
+        .custom-checkbox svg {
+            width: 12px;
+            height: 12px;
+            stroke: var(--text-inverse);
+            stroke-width: 3;
+            opacity: 0;
+            transform: scale(0.5);
+            transition: opacity 0.2s ease, transform 0.2s ease;
+        }
+
+        .list-item.checked .custom-checkbox-indicator {
+            background: var(--accent-strong);
+            border-color: var(--accent-strong);
+        }
+
+        .list-item.checked .custom-checkbox svg {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .list-item.checked .task-title {
+            color: var(--text-secondary);
+            text-decoration: line-through;
+        }
+
+        .task-content {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .task-title {
+            font-weight: 500;
+            color: var(--text-primary);
+            transition: color var(--duration-fast) var(--ease-out-quart);
+        }
+
+        .list-item.just-completed {
+            animation: completionPulse 420ms var(--ease-out-quint);
+        }
+
+        .task-meta {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .task-meta-dot {
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: var(--border-dark);
+        }
+
+        .task-source {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            text-align: right;
+            align-self: center;
+            padding: 8px 0;
+        }
+
+        .modal-overlay {
+            display: flex;
+            position: fixed;
+            inset: 0;
+            background: var(--overlay-bg);
+            z-index: 200;
+            justify-content: center;
+            align-items: center;
+            padding: 16px;
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transition: opacity var(--duration-medium) var(--ease-out-quart), visibility var(--duration-medium) linear;
+        }
+
+        .modal-overlay.visible {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+        }
+
+        .modal {
+            background: var(--bg-surface);
+            border-radius: var(--radius-lg);
+            padding: 32px;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: var(--shadow-modal);
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            border: 1px solid var(--border-light);
+            transform: translateY(20px) scale(0.985);
+            transition: transform var(--duration-medium) var(--ease-out-expo), opacity var(--duration-medium) var(--ease-out-quart);
+            opacity: 0;
+        }
+
+        .modal-overlay.visible .modal {
+            transform: translateY(0) scale(1);
+            opacity: 1;
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        .modal p {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+            margin: -8px 0 0;
+        }
+
+        .modal-close {
+            width: 44px;
+            height: 44px;
+            border: none;
+            border-radius: 50%;
+            background: var(--accent-soft);
+            color: var(--text-primary);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background var(--duration-fast) var(--ease-out-quart), transform var(--duration-fast) var(--ease-out-quart);
+            flex-shrink: 0;
+        }
+
+        .modal-close:hover {
+            background: color-mix(in srgb, var(--accent-soft) 65%, var(--border-light));
+            transform: rotate(8deg);
+        }
+
+        .modal-close svg {
+            width: 16px;
+            height: 16px;
+            stroke: currentColor;
+            stroke-width: 2;
+            fill: none;
+        }
+
+        .modal input[type="email"] {
+            padding: 12px 16px;
+            font-size: 15px;
+        }
+
+        /* Email modal enhancements */
+        .email-modal-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-purple-soft));
+            display: grid;
+            place-items: center;
+            margin-bottom: 4px;
+        }
+
+        .email-modal-icon svg {
+            width: 26px;
+            height: 26px;
+            stroke: white;
+            stroke-width: 1.8;
+            fill: none;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .email-modal-title {
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            line-height: 1.3;
+            color: var(--text-primary);
+        }
+
+        .email-modal-subtitle {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin: 0;
+        }
+
+        .email-modal-perks {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding: 16px 18px;
+            background: color-mix(in srgb, var(--accent-soft) 72%, transparent);
+            border-radius: 14px;
+            border: 1px solid var(--border-light);
+        }
+
+        .email-perk {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        .email-perk-icon {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-purple-soft));
+            display: grid;
+            place-items: center;
+            flex-shrink: 0;
+        }
+
+        .email-perk-icon svg {
+            width: 11px;
+            height: 11px;
+            stroke: white;
+            stroke-width: 2.5;
+            fill: none;
+        }
+
+        .email-modal-trust {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            font-size: 11px;
+            color: var(--text-tertiary);
+            margin-top: -8px;
+        }
+
+        .email-modal-trust svg {
+            width: 12px;
+            height: 12px;
+            stroke: var(--text-tertiary);
+            stroke-width: 2;
+            fill: none;
+        }
+
+        .modal--email {
+            max-width: 460px;
+            gap: 20px;
+        }
+
+        .modal--email .modal-header > div {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .email-field-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .field-error {
+            font-size: 13px;
+            color: var(--accent-error);
+            margin-top: -14px;
+        }
+
+        .field-error[hidden] {
+            display: none;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn-secondary {
+            background: var(--accent-soft);
+            color: var(--text-primary);
+            border: none;
+            padding: 12px 20px;
+            border-radius: var(--radius-pill);
+            font-weight: 500;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background var(--duration-fast) var(--ease-out-quart), transform var(--duration-fast) var(--ease-out-quart);
+            min-height: 44px;
+        }
+
+        .btn-secondary:hover {
+            background: color-mix(in srgb, var(--accent-soft) 55%, var(--border-light));
+            transform: translateY(-1px);
+        }
+
+        .btn-modal-primary {
+            background: var(--accent-strong);
+            color: var(--text-inverse);
+            border: none;
+            padding: 12px 24px;
+            border-radius: var(--radius-pill);
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            flex: 1;
+            transition: opacity var(--duration-fast) var(--ease-out-quart), transform var(--duration-fast) var(--ease-out-quart), box-shadow var(--duration-fast) var(--ease-out-quart);
+            min-height: 44px;
+        }
+
+        .btn-modal-primary:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+            box-shadow: 0 16px 28px -22px oklch(0.22 0.04 250 / 0.75);
+        }
+
+        .modal-task-detail {
+            max-width: 720px;
+            max-height: min(86vh, 860px);
+            gap: 18px;
+        }
+
+        .modal-kicker {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+
+        .modal-task-meta {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-top: -8px;
+        }
+
+        .source-link-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            min-height: 40px;
+            padding: 8px 14px;
+            border-radius: 999px;
+            border: 1px solid var(--border-light);
+            background: color-mix(in srgb, var(--accent-soft) 68%, white);
+            color: var(--text-primary);
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+        }
+
+        .source-link-button:hover {
+            background: color-mix(in srgb, var(--accent-soft) 82%, white);
+            border-color: var(--border-dark);
+            transform: translateY(-1px);
+        }
+
+        .source-link-button svg {
+            width: 14px;
+            height: 14px;
+            stroke: currentColor;
+            stroke-width: 2;
+            fill: none;
+            flex-shrink: 0;
+        }
+
+        .modal-task-body {
+            flex: 1 1 auto;
+            overflow-y: auto;
+            padding-right: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 22px;
+            min-height: 0;
+        }
+
+        .modal-task-section {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .modal-section-title {
+            font-size: 17px;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            line-height: 1.3;
+            color: var(--text-primary);
+            margin: 0;
+        }
+
+        .modal-task-section p {
+            margin: 0;
+            color: var(--text-primary);
+            line-height: 1.75;
+            font-size: 15px;
+        }
+
+        .modal-task-divider {
+            height: 1px;
+            background: var(--border-light);
+        }
+
+        .modal-task-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            padding-top: 4px;
+        }
+
+        .modal-task-footer .btn-secondary,
+        .modal-task-footer .btn-modal-primary {
+            flex: 0 0 auto;
+            min-width: 152px;
+        }
+
+        .btn-modal-primary[disabled] {
+            opacity: 0.45;
+            cursor: default;
+        }
+
+        .visually-hidden {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        @media (max-width: 1100px) {
+            .app-container,
+            .summary-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .config-panel {
+                position: static;
+            }
+        }
+
+        @media (max-width: 720px) {
+            .app-wrapper {
+                padding: 12px;
+            }
+
+            .modal {
+                padding: 24px;
+            }
+
+            .modal-task-detail {
+                max-height: calc(100vh - 32px);
+            }
+
+            .modal-actions,
+            .modal-task-footer,
+            .top-banner-actions {
+                width: 100%;
+                flex-wrap: wrap;
+            }
+
+            .btn-secondary,
+            .btn-modal-primary,
+            .top-banner-btn {
+                flex: 1;
+                justify-content: center;
+            }
+
+            .list-header {
+                display: none;
+            }
+
+            .list-item {
+                grid-template-columns: 44px minmax(0, 1fr);
+            }
+
+            .task-source {
+                text-align: left;
+                grid-column: 2;
+                padding-top: 0;
+            }
+
+            .checklist-card > div:first-child {
+                flex-direction: column;
+                gap: 12px;
+            }
+        }
+
+        @media (forced-colors: active) {
+            .spinner {
+                border-color: GrayText;
+                border-top-color: Highlight;
+            }
+            .step-indicator svg {
+                stroke: HighlightText;
+            }
+            .custom-checkbox-indicator {
+                forced-color-adjust: none;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+                scroll-behavior: auto !important;
+            }
+        }
+
+        * {
+            scrollbar-width: thin;
+            scrollbar-color: var(--border-light) transparent;
+        }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--border-dark); }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes panelReveal {
+            from {
+                opacity: 0;
+                transform: translateY(8px) scale(0.985);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        @keyframes completionPulse {
+            0% {
+                background: color-mix(in srgb, var(--accent-soft) 88%, white);
+                transform: translateX(0) scale(0.995);
+            }
+            100% {
+                background: transparent;
+                transform: translateX(0) scale(1);
+            }
+        }
+
+        .results-content.visible > * {
+            animation: fadeInUp var(--duration-slow) var(--ease-out-expo) both;
+        }
+
+        .results-content.visible > *:nth-child(1) { animation-delay: 0s; }
+        .results-content.visible > *:nth-child(2) { animation-delay: 0.1s; }
+        .results-content.visible > *:nth-child(3) { animation-delay: 0.2s; }
+
+        body.motion-ready .top-banner,
+        body.motion-ready .config-panel,
+        body.motion-ready .results-panel {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        body.motion-ready .config-panel {
+            transition-delay: 80ms;
+        }
+
+        body.motion-ready .results-panel {
+            transition-delay: 140ms;
+        }
+
+    </style>
+</head>
+<body>
+
+<!-- Sticky Top Banner -->
+<header class="top-banner">
+    <div class="top-banner-brand">
+        <div class="top-banner-logo">T1</div>
+        <span class="top-banner-wordmark">TrusOne</span>
+    </div>
+    <div class="top-banner-center">
+        <span class="promo-badge">New</span>
+        <span>One AI System for All EHS Work — Less manual work. More control.</span>
+    </div>
+    <div class="top-banner-actions">
+        <button class="top-banner-btn" type="button">
+            Book a Demo
+            <svg class="icon" viewBox="0 0 24 24" style="stroke: currentColor; width: 14px; height: 14px;"><path d="M5 12h14"></path><path d="M12 5l7 7-7 7"></path></svg>
+        </button>
+    </div>
+</header>
+
+<div class="app-wrapper">
+<div class="app-container">
+    <!-- Left: Config Panel -->
+    <form class="card config-panel" id="analysisForm">
+        <div style="display: flex; flex-direction: column; gap: 20px;">
+            <div class="form-group">
+                <label class="label-caps" id="locationLabel">Location</label>
+                <div class="input-wrapper combobox" data-combobox="location">
+                    <svg class="icon" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                    <input type="hidden" id="locationInput" name="location" value="California">
+                    <button
+                        class="combobox-trigger"
+                        type="button"
+                        id="locationTrigger"
+                        aria-labelledby="locationLabel locationTriggerValue"
+                        aria-haspopup="listbox"
+                        aria-expanded="false"
+                        aria-controls="locationPanel"
+                    >
+                        <span class="combobox-trigger-value" id="locationTriggerValue">California</span>
+                    </button>
+                    <svg class="combobox-trigger-icon" viewBox="0 0 24 24" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                    <div class="combobox-panel" id="locationPanel" hidden>
+                        <input
+                            class="combobox-search"
+                            id="locationSearch"
+                            type="text"
+                            placeholder="Search federal, state, county, or city"
+                            autocomplete="off"
+                            role="combobox"
+                            aria-autocomplete="list"
+                            aria-expanded="false"
+                            aria-controls="locationOptions"
+                        >
+                        <div class="combobox-actions">
+                            <button class="combobox-action" type="button" id="locationLocateBtn">
+                                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2v4"></path><path d="M12 18v4"></path><path d="M4.93 4.93l2.83 2.83"></path><path d="M16.24 16.24l2.83 2.83"></path><path d="M2 12h4"></path><path d="M18 12h4"></path><path d="M4.93 19.07l2.83-2.83"></path><path d="M16.24 7.76l2.83-2.83"></path></svg>
+                                Locate my location
+                            </button>
+                        </div>
+                        <p class="combobox-status" id="locationStatus" hidden></p>
+                        <div class="combobox-options" id="locationOptions" role="listbox" aria-label="Location options"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="label-caps" id="industryLabel">Industry</label>
+                <div class="input-wrapper combobox" data-combobox="industry">
+                    <svg class="icon" viewBox="0 0 24 24"><path d="M2 20a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8l-7 5V8l-7 5V4a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"></path><path d="M17 18h1"></path><path d="M12 18h1"></path><path d="M7 18h1"></path></svg>
+                    <input type="hidden" id="industryInput" name="industry" value="Chemical manufacturing">
+                    <button
+                        class="combobox-trigger"
+                        type="button"
+                        id="industryTrigger"
+                        aria-labelledby="industryLabel industryTriggerValue"
+                        aria-haspopup="listbox"
+                        aria-expanded="false"
+                        aria-controls="industryPanel"
+                    >
+                        <span class="combobox-trigger-value" id="industryTriggerValue">Chemical manufacturing</span>
+                    </button>
+                    <svg class="combobox-trigger-icon" viewBox="0 0 24 24" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                    <div class="combobox-panel" id="industryPanel" hidden>
+                        <input
+                            class="combobox-search"
+                            id="industrySearch"
+                            type="text"
+                            placeholder="Search sector or industry"
+                            autocomplete="off"
+                            role="combobox"
+                            aria-autocomplete="list"
+                            aria-expanded="false"
+                            aria-controls="industryOptions"
+                        >
+                        <p class="combobox-status" id="industryStatus" hidden></p>
+                        <div class="combobox-options" id="industryOptions" role="listbox" aria-label="Industry options"></div>
+                        <button class="combobox-action combobox-action--full" type="button" id="industryAiBtn" hidden>
+                            Search with AI
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="label-caps" id="companySizeLabel">Company Size</label>
+                <div class="input-wrapper combobox" data-combobox="companySize">
+                    <svg class="icon" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                    <input type="hidden" id="companySizeInput" name="company_size" value="50 - 249 Employees">
+                    <button
+                        class="combobox-trigger"
+                        type="button"
+                        id="companySizeTrigger"
+                        aria-labelledby="companySizeLabel companySizeTriggerValue"
+                        aria-haspopup="listbox"
+                        aria-expanded="false"
+                        aria-controls="companySizePanel"
+                    >
+                        <span class="combobox-trigger-value" id="companySizeTriggerValue">50 - 249 Employees</span>
+                    </button>
+                    <svg class="combobox-trigger-icon" viewBox="0 0 24 24" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                    <div class="combobox-panel" id="companySizePanel" hidden>
+                        <input
+                            class="combobox-search"
+                            id="companySizeSearch"
+                            type="text"
+                            placeholder="Search company size"
+                            autocomplete="off"
+                            role="combobox"
+                            aria-autocomplete="list"
+                            aria-expanded="false"
+                            aria-controls="companySizeOptions"
+                        >
+                        <div class="combobox-options" id="companySizeOptions" role="listbox" aria-label="Company size options"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="label-caps" for="complianceStatus">Current Compliance Status</label>
+                <textarea id="complianceStatus" name="compliance_status" placeholder="Describe your current compliance situation, e.g. 'We have basic OSHA training but no formal documentation. Recently received a warning about waste handling procedures...'"></textarea>
+            </div>
+        </div>
+
+        <button class="btn-primary" id="generateBtn" type="submit">
+            <svg class="icon" viewBox="0 0 24 24"><path d="M12 2v4"></path><path d="M12 18v4"></path><path d="M4.93 4.93l2.83 2.83"></path><path d="M16.24 16.24l2.83 2.83"></path><path d="M2 12h4"></path><path d="M18 12h4"></path><path d="M4.93 19.07l2.83-2.83"></path><path d="M16.24 7.76l2.83-2.83"></path></svg>
+            Generate Analysis
+        </button>
+    </form>
+
+    <!-- Right: Results Panel -->
+    <main class="results-panel">
+        <!-- Empty State -->
+        <div class="empty-state" id="emptyState">
+            <div class="empty-state-icon">
+                <svg viewBox="0 0 24 24"><path d="M9 5H2v7l6.29 6.29c.94.94 2.48.94 3.42 0l3.58-3.58c.94-.94.94-2.48 0-3.42L9 5z" stroke-linecap="round" stroke-linejoin="round"></path><circle cx="6" cy="9" r="1" fill="currentColor" stroke="none"></circle><path d="M22 5l-4.5 4.5" stroke-linecap="round" stroke-linejoin="round"></path><path d="M17 2l0 6" stroke-linecap="round" stroke-linejoin="round" transform="rotate(45 17 5)"></path></svg>
+            </div>
+            <h3>Generate Your Compliance Report</h3>
+            <p>Select your location, industry, and company size, then click Generate Analysis to receive a personalized compliance checklist powered by AI.</p>
+        </div>
+
+        <!-- Loading State -->
+        <div class="loading-state" id="loadingState" role="status" aria-live="polite">
+            <div class="progress-steps">
+                <div class="progress-step" id="step1">
+                    <div class="step-indicator">
+                        <div class="spinner-wrapper"><div class="spinner"></div></div>
+                        <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    </div>
+                    <span>Analyzing regulatory requirements...</span>
+                </div>
+                <div class="progress-step" id="step2">
+                    <div class="step-indicator">
+                        <div class="spinner-wrapper"><div class="spinner"></div></div>
+                        <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    </div>
+                    <span>Mapping compliance obligations...</span>
+                </div>
+                <div class="progress-step" id="step3">
+                    <div class="step-indicator">
+                        <div class="spinner-wrapper"><div class="spinner"></div></div>
+                        <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    </div>
+                    <span>Generating action items...</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Content (hidden by default) -->
+        <div class="results-content" id="resultsContent" tabindex="-1">
+            <!-- Summary Grid -->
+            <div class="summary-grid">
+                <div class="card metric-card">
+                    <div>
+                        <div class="label-caps">Open Work</div>
+                        <div class="metric-large" style="margin-top: 12px;">24</div>
+                        <p class="metric-note" style="margin-top: 10px;">Priority items remaining across environmental, health, and safety obligations.</p>
+                    </div>
+                    <div>
+                        <div class="progress-meter" aria-hidden="true">
+                            <div class="progress-meter-bar"></div>
+                        </div>
+                        <div class="label-sm" style="margin-top: 10px;">8 completed of 32</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2 id="resultsHeading">
+                        <svg class="icon" viewBox="0 0 24 24"><path d="M12 2v4"></path><path d="M12 18v4"></path><path d="M4.93 4.93l2.83 2.83"></path><path d="M16.24 16.24l2.83 2.83"></path><path d="M2 12h4"></path><path d="M18 12h4"></path><path d="M4.93 19.07l2.83-2.83"></path><path d="M16.24 7.76l2.83-2.83"></path></svg>
+                        AI Regulatory Analysis
+                    </h2>
+                    <p class="ai-text">Based on your California manufacturing profile, recent updates to Cal/OSHA Title 8 require immediate action regarding indoor heat illness prevention. Federal EPA guidelines for waste handling remain standard. Generated 32 actionable items mapped across 3 distinct regulatory bodies.</p>
+
+                    <div class="sources-tags">
+                        <span class="label-caps" style="align-self: center; margin-right: 4px;">Mapped:</span>
+                        <span class="tag">Cal/OSHA</span>
+                        <span class="tag">Fed OSHA</span>
+                        <span class="tag">EPA</span>
+                        <span class="tag">DTSC</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Checklist -->
+            <div class="card checklist-card">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
+                    <h2>Compliance Requirements</h2>
+                    <div class="segment-control" aria-label="Filter requirements">
+                        <button class="segment-btn active" data-filter="all" type="button" aria-pressed="true">All</button>
+                        <button class="segment-btn" data-filter="pending" type="button" aria-pressed="false">Pending</button>
+                        <button class="segment-btn" data-filter="done" type="button" aria-pressed="false">Done</button>
+                    </div>
+                </div>
+
+                <div class="list-header label-caps">
+                    <div></div>
+                    <div>Requirement</div>
+                    <div style="text-align: right;">Source</div>
+                </div>
+
+                <div class="list-items" id="requirementsList">
+                    <div class="list-item" data-task-id="hipp">
+                        <input class="custom-checkbox visually-hidden" id="task-check-hipp" type="checkbox" aria-labelledby="task-title-hipp">
+                        <button class="custom-checkbox" type="button" data-checkbox-for="task-check-hipp" aria-label="Mark Establish Written Heat Illness Prevention Plan complete">
+                            <span class="custom-checkbox-indicator" aria-hidden="true"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></span>
+                        </button>
+                        <button class="task-trigger" type="button" data-task-id="hipp" aria-haspopup="dialog" aria-controls="taskDetailModal">
+                            <span class="task-title" id="task-title-hipp">Establish Written Heat Illness Prevention Plan (HIPP)</span>
+                            <span class="task-meta">
+                                <span>High Priority</span>
+                                <span class="task-meta-dot"></span>
+                                <span>Annual Review</span>
+                            </span>
+                        </button>
+                        <div class="task-source">Cal/OSHA</div>
+                    </div>
+
+                    <div class="list-item checked" data-task-id="hazcom">
+                        <input class="custom-checkbox visually-hidden" id="task-check-hazcom" type="checkbox" aria-labelledby="task-title-hazcom" checked>
+                        <button class="custom-checkbox" type="button" data-checkbox-for="task-check-hazcom" aria-label="Mark Hazard Communication Program Update complete">
+                            <span class="custom-checkbox-indicator" aria-hidden="true"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></span>
+                        </button>
+                        <button class="task-trigger" type="button" data-task-id="hazcom" aria-haspopup="dialog" aria-controls="taskDetailModal">
+                            <span class="task-title" id="task-title-hazcom">Hazard Communication Program Update</span>
+                            <span class="task-meta">
+                                <span>Standard</span>
+                                <span class="task-meta-dot"></span>
+                                <span>Chemical inventory verified</span>
+                            </span>
+                        </button>
+                        <div class="task-source">Fed OSHA</div>
+                    </div>
+
+                    <div class="list-item" data-task-id="waste-manifest">
+                        <input class="custom-checkbox visually-hidden" id="task-check-waste-manifest" type="checkbox" aria-labelledby="task-title-waste-manifest">
+                        <button class="custom-checkbox" type="button" data-checkbox-for="task-check-waste-manifest" aria-label="Mark Hazardous Waste Manifest Documentation complete">
+                            <span class="custom-checkbox-indicator" aria-hidden="true"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></span>
+                        </button>
+                        <button class="task-trigger" type="button" data-task-id="waste-manifest" aria-haspopup="dialog" aria-controls="taskDetailModal">
+                            <span class="task-title" id="task-title-waste-manifest">Hazardous Waste Manifest Documentation</span>
+                            <span class="task-meta">
+                                <span>Ongoing</span>
+                                <span class="task-meta-dot"></span>
+                                <span>Retain for 3 years</span>
+                            </span>
+                        </button>
+                        <div class="task-source">EPA</div>
+                    </div>
+
+                    <div class="list-item" data-task-id="eap-training">
+                        <input class="custom-checkbox visually-hidden" id="task-check-eap-training" type="checkbox" aria-labelledby="task-title-eap-training">
+                        <button class="custom-checkbox" type="button" data-checkbox-for="task-check-eap-training" aria-label="Mark Emergency Action Plan Training complete">
+                            <span class="custom-checkbox-indicator" aria-hidden="true"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></span>
+                        </button>
+                        <button class="task-trigger" type="button" data-task-id="eap-training" aria-haspopup="dialog" aria-controls="taskDetailModal">
+                            <span class="task-title" id="task-title-eap-training">Emergency Action Plan (EAP) Training</span>
+                            <span class="task-meta">
+                                <span>Training</span>
+                                <span class="task-meta-dot"></span>
+                                <span>All new employees</span>
+                            </span>
+                        </button>
+                        <div class="task-source">Cal/OSHA</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+</div>
+
+<!-- Email Modal -->
+<div class="modal-overlay" id="emailModal" aria-hidden="true">
+    <div class="modal modal--email" role="dialog" aria-modal="true" aria-labelledby="emailModalTitle" aria-describedby="emailModalDescription">
+        <div class="modal-header">
+            <div>
+                <div class="email-modal-icon">
+                    <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                </div>
+                <h3 id="emailModalTitle" class="email-modal-title">Get your personalized compliance report</h3>
+                <p id="emailModalDescription" class="email-modal-subtitle">Enter your work email and we'll generate a tailored analysis based on your profile, plus deliver a full PDF report to your inbox.</p>
+            </div>
+            <button class="modal-close" type="button" aria-label="Close email prompt" data-close-modal="emailModal">
+                <svg viewBox="0 0 24 24"><path d="M6 6l12 12"></path><path d="M18 6l-12 12"></path></svg>
+            </button>
+        </div>
+        <div class="email-modal-perks">
+            <div class="email-perk">
+                <div class="email-perk-icon"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
+                Full PDF compliance report delivered to your email
+            </div>
+            <div class="email-perk">
+                <div class="email-perk-icon"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
+                32+ actionable items mapped to regulatory bodies
+            </div>
+            <div class="email-perk">
+                <div class="email-perk-icon"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
+                AI-powered analysis updated with latest regulations
+            </div>
+        </div>
+        <div class="email-field-group">
+            <label class="label-caps" for="emailInput">Work Email</label>
+            <input type="email" id="emailInput" placeholder="you@company.com" style="padding-left: 16px;" autocomplete="email" inputmode="email" aria-describedby="emailError">
+            <p class="field-error" id="emailError" role="alert" hidden>Please enter a valid work email address.</p>
+        </div>
+        <div class="modal-actions">
+            <button class="btn-secondary" type="button" data-close-modal="emailModal">Cancel</button>
+            <button class="btn-modal-primary" type="button" id="emailContinueBtn">Generate Report</button>
+        </div>
+        <div class="email-modal-trust">
+            <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+            Your data is secure. We never share your email with third parties.
+        </div>
+    </div>
+</div>
+
+<!-- Task Detail Modal -->
+<div class="modal-overlay" id="taskDetailModal" aria-hidden="true">
+    <div class="modal modal-task-detail" role="dialog" aria-modal="true" aria-labelledby="taskDetailTitle">
+        <div class="modal-header">
+            <div>
+                <div class="modal-kicker">Requirement Detail</div>
+                <h3 id="taskDetailTitle">Task detail</h3>
+            </div>
+            <button class="modal-close" type="button" aria-label="Close task detail" data-close-modal="taskDetailModal">
+                <svg viewBox="0 0 24 24"><path d="M6 6l12 12"></path><path d="M18 6l-12 12"></path></svg>
+            </button>
+        </div>
+        <div class="modal-task-meta">
+            <span class="label-caps" style="color: var(--text-secondary);">Source</span>
+            <a id="taskDetailSourceLink" class="source-link-button" href="#" target="_blank" rel="noreferrer noopener">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3h7v7"></path><path d="M10 14 21 3"></path><path d="M21 14v4a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3V6a3 3 0 0 1 3-3h4"></path></svg>
+                <span id="taskDetailSource">Source</span>
+            </a>
+        </div>
+        <div class="modal-task-divider" aria-hidden="true"></div>
+        <div class="modal-task-body">
+            <div class="modal-task-section">
+                <h4 class="modal-section-title">Explanation</h4>
+                <p id="taskDetailExplanation"></p>
+            </div>
+            <div class="modal-task-section">
+                <h4 class="modal-section-title">Immediate Next Step</h4>
+                <p id="taskDetailNextStep"></p>
+            </div>
+            <div class="modal-task-section">
+                <h4 class="modal-section-title">Why It Matters</h4>
+                <p id="taskDetailWhy"></p>
+            </div>
+            <div class="modal-task-section">
+                <h4 class="modal-section-title">Source / Retention Notes</h4>
+                <p id="taskDetailNotes"></p>
+            </div>
+        </div>
+        <div class="modal-task-divider" aria-hidden="true"></div>
+        <div class="modal-task-footer">
+            <button class="btn-secondary" type="button" id="taskDetailCloseBtn">Close</button>
+            <button class="btn-modal-primary" type="button" id="taskDetailCompleteBtn">Mark as Complete</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Measure banner height for sticky config panel offset
+    (function setBannerHeight() {
+        const banner = document.querySelector('.top-banner');
+        if (banner) {
+            const update = () => document.documentElement.style.setProperty('--banner-height', banner.offsetHeight + 'px');
+            update();
+            window.addEventListener('resize', update);
+        }
+    })();
+
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+            document.body.classList.add('motion-ready');
+        });
+    });
+
+    let userEmail = null;
+    let activeModalId = null;
+    let lastFocusedElement = null;
+    let activeTaskId = null;
+
+    const INDUSTRY_TAXONOMY_RAW = `
+Manufacturing	Chemical manufacturing
+Manufacturing	Food & beverage manufacturing
+Manufacturing	Pharmaceutical manufacturing
+Manufacturing	Semiconductor & electronics
+Manufacturing	Metal fabrication & finishing
+Manufacturing	Plastics & rubber
+Manufacturing	Aerospace & defense
+Manufacturing	Automotive manufacturing
+Manufacturing	Textile & apparel
+Manufacturing	Paper & pulp
+Manufacturing	Paint & coatings
+Manufacturing	Firearms & ammunition
+Energy & utilities	Oil & gas extraction
+Energy & utilities	Petroleum refining
+Energy & utilities	Electric power generation
+Energy & utilities	Natural gas distribution
+Energy & utilities	Renewable energy (solar/wind)
+Energy & utilities	Nuclear energy
+Energy & utilities	Water & wastewater utilities
+Energy & utilities	Coal mining
+Healthcare & life sciences	Hospitals & health systems
+Healthcare & life sciences	Physician & dental practices
+Healthcare & life sciences	Pharmacies
+Healthcare & life sciences	Biotech & medical devices
+Healthcare & life sciences	Clinical laboratories
+Healthcare & life sciences	Long-term care & nursing homes
+Healthcare & life sciences	Home health care
+Healthcare & life sciences	Mental health & substance abuse
+Agriculture & food	Crop farming
+Agriculture & food	Livestock & poultry
+Agriculture & food	Aquaculture & fishing
+Agriculture & food	Pesticide & fertilizer dist.
+Agriculture & food	Food processing & packaging
+Agriculture & food	Grocery & food retail
+Agriculture & food	Restaurants & food service
+Construction & real estate	General construction
+Construction & real estate	Residential building
+Construction & real estate	Heavy & civil engineering
+Construction & real estate	Demolition & abatement
+Construction & real estate	Electrical contractors
+Construction & real estate	Plumbing & HVAC
+Construction & real estate	Real estate (sales & leasing)
+Construction & real estate	Property management
+Transportation & logistics	Trucking & freight
+Transportation & logistics	Airlines & aviation
+Transportation & logistics	Rail transportation
+Transportation & logistics	Maritime & shipping
+Transportation & logistics	Warehousing & distribution
+Transportation & logistics	Hazmat transport
+Transportation & logistics	Passenger transit
+Transportation & logistics	Ride-sharing & delivery
+Financial services	Banking & credit unions
+Financial services	Investment & securities
+Financial services	Insurance
+Financial services	Mortgage & lending
+Financial services	Accounting & tax services
+Financial services	Cryptocurrency & fintech
+Financial services	Private equity & venture capital
+Retail & consumer goods	General retail stores
+Retail & consumer goods	Auto dealers & repair
+Retail & consumer goods	Dry cleaning & laundry
+Retail & consumer goods	Nail salons & beauty
+Retail & consumer goods	Tattoo & body piercing
+Retail & consumer goods	Firearms dealers (FFL)
+Retail & consumer goods	Alcohol retailers & distributors
+Retail & consumer goods	Cannabis dispensaries
+Hospitality & tourism	Hotels & lodging
+Hospitality & tourism	Casinos & gaming
+Hospitality & tourism	Amusement parks & recreation
+Hospitality & tourism	Travel agencies & tour operators
+Hospitality & tourism	Event venues & promoters
+Technology & media	Software & SaaS
+Technology & media	Telecommunications
+Technology & media	Broadcasting & media
+Technology & media	Data centers & cloud
+Technology & media	AI & machine learning
+Technology & media	Defense technology
+Education & nonprofits	K-12 schools
+Education & nonprofits	Colleges & universities
+Education & nonprofits	Childcare & daycare
+Education & nonprofits	Nonprofit organizations
+Education & nonprofits	Religious organizations
+Government & public sector	Federal agencies
+Government & public sector	State & local government
+Government & public sector	Public safety (police/fire)
+Government & public sector	Military & defense contractors
+Professional services	Law firms
+Professional services	Architecture & engineering
+Professional services	Staffing & temp agencies
+Professional services	Security services
+Professional services	Funeral homes & crematoria
+Professional services	Veterinary services
+Mining & extraction	Hard rock mining
+Mining & extraction	Sand, gravel & stone quarrying
+Mining & extraction	Underground mining
+Mining & extraction	Rare earth & critical minerals
+    `.trim();
+
+    const STATE_DATA = [
+        ['Alabama', 'AL', 32.806671, -86.79113],
+        ['Alaska', 'AK', 61.370716, -152.404419],
+        ['Arizona', 'AZ', 33.729759, -111.431221],
+        ['Arkansas', 'AR', 34.969704, -92.373123],
+        ['California', 'CA', 36.116203, -119.681564],
+        ['Colorado', 'CO', 39.059811, -105.311104],
+        ['Connecticut', 'CT', 41.597782, -72.755371],
+        ['Delaware', 'DE', 39.318523, -75.507141],
+        ['District of Columbia', 'DC', 38.897438, -77.026817],
+        ['Florida', 'FL', 27.766279, -81.686783],
+        ['Georgia', 'GA', 33.040619, -83.643074],
+        ['Hawaii', 'HI', 21.094318, -157.498337],
+        ['Idaho', 'ID', 44.240459, -114.478828],
+        ['Illinois', 'IL', 40.349457, -88.986137],
+        ['Indiana', 'IN', 39.849426, -86.258278],
+        ['Iowa', 'IA', 42.011539, -93.210526],
+        ['Kansas', 'KS', 38.5266, -96.726486],
+        ['Kentucky', 'KY', 37.66814, -84.670067],
+        ['Louisiana', 'LA', 31.169546, -91.867805],
+        ['Maine', 'ME', 44.693947, -69.381927],
+        ['Maryland', 'MD', 39.063946, -76.802101],
+        ['Massachusetts', 'MA', 42.230171, -71.530106],
+        ['Michigan', 'MI', 43.326618, -84.536095],
+        ['Minnesota', 'MN', 45.694454, -93.900192],
+        ['Mississippi', 'MS', 32.741646, -89.678696],
+        ['Missouri', 'MO', 38.456085, -92.288368],
+        ['Montana', 'MT', 46.921925, -110.454353],
+        ['Nebraska', 'NE', 41.12537, -98.268082],
+        ['Nevada', 'NV', 38.313515, -117.055374],
+        ['New Hampshire', 'NH', 43.452492, -71.563896],
+        ['New Jersey', 'NJ', 40.298904, -74.521011],
+        ['New Mexico', 'NM', 34.840515, -106.248482],
+        ['New York', 'NY', 42.165726, -74.948051],
+        ['North Carolina', 'NC', 35.630066, -79.806419],
+        ['North Dakota', 'ND', 47.528912, -99.784012],
+        ['Ohio', 'OH', 40.388783, -82.764915],
+        ['Oklahoma', 'OK', 35.565342, -96.928917],
+        ['Oregon', 'OR', 44.572021, -122.070938],
+        ['Pennsylvania', 'PA', 40.590752, -77.209755],
+        ['Rhode Island', 'RI', 41.680893, -71.51178],
+        ['South Carolina', 'SC', 33.856892, -80.945007],
+        ['South Dakota', 'SD', 44.299782, -99.438828],
+        ['Tennessee', 'TN', 35.747845, -86.692345],
+        ['Texas', 'TX', 31.054487, -97.563461],
+        ['Utah', 'UT', 40.150032, -111.862434],
+        ['Vermont', 'VT', 44.045876, -72.710686],
+        ['Virginia', 'VA', 37.769337, -78.169968],
+        ['Washington', 'WA', 47.400902, -121.490494],
+        ['West Virginia', 'WV', 38.491226, -80.95457],
+        ['Wisconsin', 'WI', 44.268543, -89.616508],
+        ['Wyoming', 'WY', 42.755966, -107.30249]
+    ];
+
+    const LOCATION_COUNTIES = [
+        ['San Francisco County', 'California', 37.7749, -122.4194],
+        ['Los Angeles County', 'California', 34.0522, -118.2437],
+        ['San Diego County', 'California', 32.7157, -117.1611],
+        ['Sacramento County', 'California', 38.5816, -121.4944],
+        ['Travis County', 'Texas', 30.2711, -97.7437],
+        ['Harris County', 'Texas', 29.7752, -95.3103],
+        ['Dallas County', 'Texas', 32.7668, -96.7794],
+        ['New York County', 'New York', 40.7831, -73.9712],
+        ['Erie County', 'New York', 42.9025, -78.7320],
+        ['Albany County', 'New York', 42.6006, -73.9730],
+        ['Miami-Dade County', 'Florida', 25.5516, -80.6327],
+        ['Orange County', 'Florida', 28.4845, -81.2519],
+        ['Fulton County', 'Georgia', 33.8034, -84.3963],
+        ['Cook County', 'Illinois', 41.7377, -87.6976],
+        ['King County', 'Washington', 47.5480, -121.9836],
+        ['Suffolk County', 'Massachusetts', 42.3570, -71.0640],
+        ['Denver County', 'Colorado', 39.7280, -104.9988],
+        ['Maricopa County', 'Arizona', 33.2918, -112.4291],
+        ['Philadelphia County', 'Pennsylvania', 39.9526, -75.1652],
+        ['Clark County', 'Nevada', 36.0796, -115.0940],
+        ['Multnomah County', 'Oregon', 45.5140, -122.5864],
+        ['Wayne County', 'Michigan', 42.2791, -83.3362],
+        ['Hennepin County', 'Minnesota', 45.0209, -93.5095],
+        ['Mecklenburg County', 'North Carolina', 35.2547, -80.8390]
+    ];
+
+    const LOCATION_CITIES = [
+        ['San Francisco', 'California', 37.7749, -122.4194],
+        ['Los Angeles', 'California', 34.0522, -118.2437],
+        ['San Diego', 'California', 32.7157, -117.1611],
+        ['Sacramento', 'California', 38.5816, -121.4944],
+        ['Austin', 'Texas', 30.2672, -97.7431],
+        ['Houston', 'Texas', 29.7604, -95.3698],
+        ['Dallas', 'Texas', 32.7767, -96.7970],
+        ['New York City', 'New York', 40.7128, -74.0060],
+        ['Buffalo', 'New York', 42.8864, -78.8784],
+        ['Albany', 'New York', 42.6526, -73.7562],
+        ['Miami', 'Florida', 25.7617, -80.1918],
+        ['Orlando', 'Florida', 28.5383, -81.3792],
+        ['Atlanta', 'Georgia', 33.7490, -84.3880],
+        ['Chicago', 'Illinois', 41.8781, -87.6298],
+        ['Seattle', 'Washington', 47.6062, -122.3321],
+        ['Boston', 'Massachusetts', 42.3601, -71.0589],
+        ['Denver', 'Colorado', 39.7392, -104.9903],
+        ['Phoenix', 'Arizona', 33.4484, -112.0740],
+        ['Philadelphia', 'Pennsylvania', 39.9526, -75.1652],
+        ['Las Vegas', 'Nevada', 36.1699, -115.1398],
+        ['Portland', 'Oregon', 45.5152, -122.6784],
+        ['Detroit', 'Michigan', 42.3314, -83.0458],
+        ['Minneapolis', 'Minnesota', 44.9778, -93.2650],
+        ['Charlotte', 'North Carolina', 35.2271, -80.8431],
+        ['Washington', 'District of Columbia', 38.9072, -77.0369]
+    ];
+
+    const COMPANY_SIZE_OPTIONS = [
+        '10 - 49 Employees',
+        '50 - 249 Employees',
+        '250+ Employees'
+    ];
+
+    const INDUSTRY_AI_SYNONYMS = {
+        ai: ['machine learning', 'software', 'cloud'],
+        bank: ['banking', 'credit unions'],
+        beauty: ['nail salons', 'beauty'],
+        biotech: ['biotech', 'medical devices', 'clinical laboratories'],
+        chip: ['semiconductor', 'electronics'],
+        clinic: ['clinical laboratories', 'physician', 'dental'],
+        cloud: ['data centers', 'cloud', 'software', 'saas'],
+        crypto: ['cryptocurrency', 'fintech'],
+        daycare: ['childcare', 'daycare'],
+        defense: ['aerospace', 'defense', 'military', 'defense contractors', 'defense technology'],
+        dentist: ['physician', 'dental'],
+        electric: ['electric power generation', 'electrical contractors'],
+        electronics: ['semiconductor', 'electronics'],
+        energy: ['renewable energy', 'electric power generation', 'oil', 'gas'],
+        fintech: ['cryptocurrency', 'fintech', 'banking'],
+        freight: ['trucking', 'freight', 'warehousing', 'distribution', 'shipping'],
+        grocery: ['grocery', 'food retail'],
+        gun: ['firearms', 'ammunition', 'ffl'],
+        healthcare: ['hospitals', 'health systems', 'home health care', 'long-term care'],
+        hotel: ['hotels', 'lodging', 'travel agencies', 'tour operators'],
+        hvac: ['plumbing', 'hvac'],
+        lab: ['clinical laboratories', 'biotech', 'medical devices'],
+        legal: ['law firms'],
+        logistics: ['trucking', 'freight', 'warehousing', 'distribution', 'shipping', 'rail transportation'],
+        mining: ['coal mining', 'hard rock mining', 'underground mining', 'quarrying'],
+        nurse: ['nursing homes', 'long-term care', 'home health care'],
+        pharma: ['pharmaceutical', 'biotech', 'medical devices'],
+        police: ['public safety'],
+        restaurant: ['restaurants', 'food service'],
+        retail: ['general retail stores', 'grocery', 'food retail'],
+        school: ['k-12 schools', 'colleges', 'universities', 'childcare', 'daycare'],
+        shipping: ['maritime', 'shipping', 'warehousing', 'distribution'],
+        software: ['software', 'saas', 'telecommunications', 'cloud'],
+        solar: ['renewable energy', 'solar', 'wind'],
+        staffing: ['staffing', 'temp agencies'],
+        trucking: ['trucking', 'freight', 'hazmat transport'],
+        utility: ['water', 'wastewater utilities', 'natural gas distribution', 'electric power generation'],
+        vet: ['veterinary services']
+    };
+
+    const JURISDICTION_LEVEL_ORDER = ['Federal', 'State', 'County', 'City'];
+
+    function normalizeText(value) {
+        return value
+            .toLowerCase()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .replace(/[^a-z0-9]+/g, ' ')
+            .trim();
+    }
+
+    function slugify(value) {
+        return normalizeText(value).replace(/\s+/g, '-');
+    }
+
+    function buildLocationOptions() {
+        const federal = [{
+            id: 'location-federal',
+            value: 'Federal',
+            label: 'Federal',
+            displayLabel: 'Federal',
+            groupLabel: 'Federal',
+            searchText: normalizeText('Federal United States nationwide national'),
+            level: 'Federal'
+        }];
+
+        const states = STATE_DATA.map(([name, abbreviation, latitude, longitude]) => ({
+            id: `location-state-${slugify(name)}`,
+            value: name,
+            label: name,
+            displayLabel: name,
+            groupLabel: 'State',
+            searchText: normalizeText(`${name} ${abbreviation} state`),
+            level: 'State',
+            parentState: name,
+            latitude,
+            longitude,
+            aliases: [abbreviation]
+        }));
+
+        const counties = LOCATION_COUNTIES.map(([county, state, latitude, longitude]) => ({
+            id: `location-county-${slugify(`${county}-${state}`)}`,
+            value: `${county}, ${state}`,
+            label: `${county}, ${state}`,
+            displayLabel: `${county}, ${state}`,
+            groupLabel: 'County',
+            searchText: normalizeText(`${county} ${state} county jurisdiction`),
+            level: 'County',
+            parentState: state,
+            latitude,
+            longitude
+        }));
+
+        const cities = LOCATION_CITIES.map(([city, state, latitude, longitude]) => ({
+            id: `location-city-${slugify(`${city}-${state}`)}`,
+            value: `${city}, ${state}`,
+            label: `${city}, ${state}`,
+            displayLabel: `${city}, ${state}`,
+            groupLabel: 'City',
+            searchText: normalizeText(`${city} ${state} city municipality jurisdiction`),
+            level: 'City',
+            parentState: state,
+            latitude,
+            longitude
+        }));
+
+        return [...federal, ...states, ...counties, ...cities].sort((left, right) => {
+            const levelDelta = JURISDICTION_LEVEL_ORDER.indexOf(left.level) - JURISDICTION_LEVEL_ORDER.indexOf(right.level);
+            if (levelDelta !== 0) return levelDelta;
+            return left.label.localeCompare(right.label);
+        });
+    }
+
+    function buildIndustryOptions() {
+        return INDUSTRY_TAXONOMY_RAW.split('\n').map((line, index) => {
+            const [sector, industry] = line.split('\t');
+            return {
+                id: `industry-${index + 1}`,
+                value: industry,
+                label: industry,
+                displayLabel: industry,
+                groupLabel: sector,
+                searchText: normalizeText(`${sector} ${industry}`),
+                level: sector
+            };
+        });
+    }
+
+    function buildCompanySizeOptions() {
+        return COMPANY_SIZE_OPTIONS.map((label) => ({
+            id: `company-size-${slugify(label)}`,
+            value: label,
+            label,
+            displayLabel: label,
+            groupLabel: null,
+            searchText: normalizeText(label)
+        }));
+    }
+
+    const locationOptions = buildLocationOptions();
+    const industryOptions = buildIndustryOptions();
+    const companySizeOptions = buildCompanySizeOptions();
+
+    const comboboxConfigs = {
+        location: {
+            key: 'location',
+            hiddenInputId: 'locationInput',
+            triggerId: 'locationTrigger',
+            triggerValueId: 'locationTriggerValue',
+            panelId: 'locationPanel',
+            searchInputId: 'locationSearch',
+            optionsId: 'locationOptions',
+            statusId: 'locationStatus',
+            actionId: 'locationLocateBtn',
+            grouped: true,
+            emptyText: 'No matching jurisdictions found.',
+            searchPlaceholder: 'Search federal, state, county, or city',
+            dataset: locationOptions
+        },
+        industry: {
+            key: 'industry',
+            hiddenInputId: 'industryInput',
+            triggerId: 'industryTrigger',
+            triggerValueId: 'industryTriggerValue',
+            panelId: 'industryPanel',
+            searchInputId: 'industrySearch',
+            optionsId: 'industryOptions',
+            statusId: 'industryStatus',
+            aiActionId: 'industryAiBtn',
+            grouped: true,
+            emptyText: 'No matching industries found.',
+            searchPlaceholder: 'Search sector or industry',
+            dataset: industryOptions
+        },
+        companySize: {
+            key: 'companySize',
+            hiddenInputId: 'companySizeInput',
+            triggerId: 'companySizeTrigger',
+            triggerValueId: 'companySizeTriggerValue',
+            panelId: 'companySizePanel',
+            searchInputId: 'companySizeSearch',
+            optionsId: 'companySizeOptions',
+            grouped: false,
+            emptyText: 'No matching company sizes found.',
+            searchPlaceholder: 'Search company size',
+            dataset: companySizeOptions
+        }
+    };
+
+    const comboboxState = Object.fromEntries(
+        Object.keys(comboboxConfigs).map((key) => [key, {
+            open: false,
+            query: '',
+            activeId: null,
+            selectedId: null,
+            filteredIds: [],
+            aiSuggestionIds: []
+        }])
+    );
+
+    const taskDetails = {
+        hipp: {
+            title: 'Establish Written Heat Illness Prevention Plan (HIPP)',
+            source: 'Cal/OSHA',
+            sourceUrl: 'https://www.dir.ca.gov/dosh/heat-illness/indoor.html',
+            explanation: 'This requirement means your facility needs a documented heat illness prevention plan that explains how you monitor hot conditions, provide water and shade, respond to symptoms, and communicate heat-related procedures to workers and supervisors.',
+            nextStep: 'Review your current heat policies, then draft or update a written HIPP that names responsible roles, indoor and outdoor heat triggers, employee communication steps, and annual review ownership.',
+            whyItMatters: 'California heat rules are actively enforced and are especially important for manufacturing environments with warm process areas. A missing or outdated written plan can turn a manageable inspection into a preventable citation.',
+            notes: 'Primary source is Cal/OSHA. Keep the written plan available for supervisors and employees, document annual review updates, and retain supporting training or implementation records alongside the plan.'
+        },
+        hazcom: {
+            title: 'Hazard Communication Program Update',
+            source: 'Fed OSHA',
+            sourceUrl: 'https://www.osha.gov/laws-regs/regulations/standardnumber/1910/1910.1200',
+            explanation: 'This task covers the written hazard communication program for chemicals used onsite. It should reflect your current chemical inventory, labeling practices, Safety Data Sheet access, and how employees are trained on chemical hazards.',
+            nextStep: 'Compare the written HazCom program against the current chemical inventory and SDS library, then update any outdated sections covering labeling, storage, training cadence, or responsible personnel.',
+            whyItMatters: 'HazCom is a foundational OSHA program. If the written program does not match what employees actually handle, the company can appear out of compliance even when some practices are being followed informally.',
+            notes: 'Primary source is Fed OSHA. Maintain an up-to-date written program, ensure SDS access is current, and retain supporting inventory and training records as part of your compliance file.'
+        },
+        'waste-manifest': {
+            title: 'Hazardous Waste Manifest Documentation',
+            source: 'EPA',
+            sourceUrl: 'https://www.epa.gov/hwgenerators/hazardous-waste-manifest-system',
+            explanation: 'This task means tracking hazardous waste shipments with complete manifest records so you can show what waste left the site, who transported it, where it went, and whether the receiving facility accepted it properly.',
+            nextStep: 'Audit recent waste shipments, confirm each manifest is complete and signed through final destination, and organize the records in a searchable compliance folder by shipment date or waste stream.',
+            whyItMatters: 'Manifest records are one of the clearest proof points during an EPA or state environmental review. Incomplete documentation can create the impression that waste handling controls are weak even if disposal vendors were used correctly.',
+            notes: 'Primary source is EPA. Current sample requirement says retain for 3 years; keep signed manifests and any exception or discrepancy follow-up documentation together for the full retention period.'
+        },
+        'eap-training': {
+            title: 'Emergency Action Plan (EAP) Training',
+            source: 'Cal/OSHA',
+            sourceUrl: 'https://www.dir.ca.gov/title8/3220.html',
+            explanation: 'This task requires employees to understand the emergency action plan, including alarm methods, evacuation routes, reporting lines, and what to do during fire, medical, chemical, or site-specific emergency events.',
+            nextStep: 'Confirm the written EAP is current, then schedule onboarding and refresher training that covers evacuation procedures, assembly points, emergency contacts, and supervisor responsibilities.',
+            whyItMatters: 'A written plan alone is not enough if employees do not know how to act during an emergency. Training closes the gap between policy and real response readiness, which is what inspectors and auditors look for.',
+            notes: 'Primary source is Cal/OSHA. The current checklist item emphasizes all new employees, so maintain onboarding completion records and keep refresher documentation when procedures or staffing change.'
+        }
+    };
+
+    const taskDetailModal = document.getElementById('taskDetailModal');
+    const taskDetailTitle = document.getElementById('taskDetailTitle');
+    const taskDetailSource = document.getElementById('taskDetailSource');
+    const taskDetailSourceLink = document.getElementById('taskDetailSourceLink');
+    const taskDetailExplanation = document.getElementById('taskDetailExplanation');
+    const taskDetailNextStep = document.getElementById('taskDetailNextStep');
+    const taskDetailWhy = document.getElementById('taskDetailWhy');
+    const taskDetailNotes = document.getElementById('taskDetailNotes');
+    const taskDetailCloseBtn = document.getElementById('taskDetailCloseBtn');
+    const taskDetailCompleteBtn = document.getElementById('taskDetailCompleteBtn');
+    const emailModal = document.getElementById('emailModal');
+    const emailInput = document.getElementById('emailInput');
+    const emailError = document.getElementById('emailError');
+    const emailContinueBtn = document.getElementById('emailContinueBtn');
+    const resultsContent = document.getElementById('resultsContent');
+    const loadingState = document.getElementById('loadingState');
+    const emptyState = document.getElementById('emptyState');
+    const resultsHeading = document.getElementById('resultsHeading');
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    function findOptionByValue(options, value) {
+        return options.find((option) => option.value === value) || options[0] || null;
+    }
+
+    function createOptionElement(key, option, isActive, isSelected) {
+        const element = document.createElement('button');
+        element.type = 'button';
+        element.id = `${key}-option-${option.id}`;
+        element.className = `combobox-option${isActive ? ' is-active' : ''}${isSelected ? ' is-selected' : ''}`;
+        element.setAttribute('role', 'option');
+        element.setAttribute('aria-selected', String(isSelected));
+        element.dataset.optionId = option.id;
+        element.innerHTML = `
+            <span class="combobox-option-label">${option.displayLabel}</span>
+            ${option.groupLabel ? `<span class="combobox-option-meta">${option.groupLabel}</span>` : ''}
+        `;
+        element.addEventListener('mousedown', (event) => event.preventDefault());
+        element.addEventListener('click', () => selectComboboxOption(key, option.id));
+        return element;
+    }
+
+    function getFilteredOptions(config, query) {
+        const normalizedQuery = normalizeText(query);
+        if (!normalizedQuery) return config.dataset;
+        return config.dataset.filter((option) => {
+            const aliasMatch = (option.aliases || []).some((alias) => normalizeText(alias).includes(normalizedQuery));
+            return option.searchText.includes(normalizedQuery) || aliasMatch;
+        });
+    }
+
+    function hasExactOptionMatch(config, query) {
+        const normalizedQuery = normalizeText(query);
+        if (!normalizedQuery) return false;
+        return config.dataset.some((option) =>
+            normalizeText(option.label) === normalizedQuery ||
+            normalizeText(option.value) === normalizedQuery
+        );
+    }
+
+    function scoreIndustryOption(option, query) {
+        const normalizedQuery = normalizeText(query);
+        if (!normalizedQuery) return 0;
+
+        const queryTokens = normalizedQuery.split(' ').filter(Boolean);
+        const optionTokens = new Set(option.searchText.split(' ').filter(Boolean));
+        let score = 0;
+
+        if (option.searchText.includes(normalizedQuery)) score += 12;
+
+        queryTokens.forEach((token) => {
+            if (optionTokens.has(token)) score += 4;
+            const synonyms = INDUSTRY_AI_SYNONYMS[token] || [];
+            synonyms.forEach((synonym) => {
+                if (option.searchText.includes(normalizeText(synonym))) score += 3;
+            });
+        });
+
+        if (normalizedQuery.includes('manufactur') && option.groupLabel === 'Manufacturing') score += 3;
+        if (normalizedQuery.includes('health') && option.groupLabel === 'Healthcare & life sciences') score += 3;
+        if (normalizedQuery.includes('tech') && option.groupLabel === 'Technology & media') score += 3;
+        if (normalizedQuery.includes('transport') && option.groupLabel === 'Transportation & logistics') score += 3;
+
+        return score;
+    }
+
+    function getAiIndustrySuggestions(query) {
+        return industryOptions
+            .map((option) => ({ option, score: scoreIndustryOption(option, query) }))
+            .filter((entry) => entry.score > 0)
+            .sort((left, right) => right.score - left.score || left.option.label.localeCompare(right.option.label))
+            .slice(0, 5)
+            .map((entry) => entry.option.id);
+    }
+
+    function updateComboboxStatus(key, message = '', isError = false) {
+        const config = comboboxConfigs[key];
+        if (!config.statusId) return;
+        const status = document.getElementById(config.statusId);
+        if (!status) return;
+        status.hidden = !message;
+        status.textContent = message;
+        status.classList.toggle('is-error', Boolean(isError));
+    }
+
+    function syncComboboxTrigger(key) {
+        const config = comboboxConfigs[key];
+        const state = comboboxState[key];
+        const trigger = document.getElementById(config.triggerId);
+        const triggerValue = document.getElementById(config.triggerValueId);
+        const selected = config.dataset.find((option) => option.id === state.selectedId);
+
+        trigger.setAttribute('aria-expanded', String(state.open));
+        triggerValue.textContent = selected ? selected.displayLabel : 'Select an option';
+        triggerValue.classList.toggle('combobox-trigger-placeholder', !selected);
+    }
+
+    function renderCombobox(key) {
+        const config = comboboxConfigs[key];
+        const state = comboboxState[key];
+        const wrapper = document.querySelector(`[data-combobox="${key}"]`);
+        const panel = document.getElementById(config.panelId);
+        const searchInput = document.getElementById(config.searchInputId);
+        const optionsContainer = document.getElementById(config.optionsId);
+        const aiButton = config.aiActionId ? document.getElementById(config.aiActionId) : null;
+        const exactMatch = hasExactOptionMatch(config, state.query);
+        const filteredOptions = state.aiSuggestionIds.length
+            ? config.dataset.filter((option) => state.aiSuggestionIds.includes(option.id))
+            : getFilteredOptions(config, state.query);
+
+        state.filteredIds = filteredOptions.map((option) => option.id);
+        if (!state.filteredIds.includes(state.activeId)) {
+            state.activeId = state.filteredIds[0] || null;
+        }
+
+        wrapper.classList.toggle('open', state.open);
+        panel.hidden = !state.open;
+        searchInput.setAttribute('aria-expanded', String(state.open));
+        searchInput.value = state.query;
+        searchInput.setAttribute('aria-activedescendant', state.activeId ? `${key}-option-${state.activeId}` : '');
+        optionsContainer.innerHTML = '';
+
+        if (aiButton) {
+            const showAiButton = state.query.trim().length > 0 && !exactMatch && !state.aiSuggestionIds.length;
+            aiButton.hidden = !showAiButton;
+        }
+
+        if (!filteredOptions.length) {
+            const empty = document.createElement('div');
+            empty.className = 'combobox-empty';
+            empty.textContent = state.aiSuggestionIds.length
+                ? 'No similar industries found. Try a different description.'
+                : config.emptyText;
+            optionsContainer.appendChild(empty);
+            syncComboboxTrigger(key);
+            return;
+        }
+
+        if (config.grouped) {
+            let currentGroup = null;
+            filteredOptions.forEach((option) => {
+                if (option.groupLabel !== currentGroup) {
+                    currentGroup = option.groupLabel;
+                    const heading = document.createElement('div');
+                    heading.className = 'combobox-group-label';
+                    heading.textContent = currentGroup;
+                    optionsContainer.appendChild(heading);
+                }
+                optionsContainer.appendChild(
+                    createOptionElement(key, option, option.id === state.activeId, option.id === state.selectedId)
+                );
+            });
+        } else {
+            filteredOptions.forEach((option) => {
+                optionsContainer.appendChild(
+                    createOptionElement(key, option, option.id === state.activeId, option.id === state.selectedId)
+                );
+            });
+        }
+
+        syncComboboxTrigger(key);
+    }
+
+    function closeCombobox(key, returnFocus = false) {
+        const config = comboboxConfigs[key];
+        const state = comboboxState[key];
+        if (!state.open) return;
+        state.open = false;
+        state.query = '';
+        state.activeId = null;
+        state.aiSuggestionIds = [];
+        renderCombobox(key);
+        updateComboboxStatus(key);
+        if (returnFocus) {
+            document.getElementById(config.triggerId).focus();
+        }
+    }
+
+    function closeAllComboboxes(exceptKey = null) {
+        Object.keys(comboboxConfigs).forEach((key) => {
+            if (key !== exceptKey) closeCombobox(key);
+        });
+    }
+
+    function openCombobox(key, focusSearch = true) {
+        const config = comboboxConfigs[key];
+        const state = comboboxState[key];
+        closeAllComboboxes(key);
+        state.open = true;
+        state.query = '';
+        state.activeId = state.selectedId || config.dataset[0]?.id || null;
+        renderCombobox(key);
+        if (focusSearch) {
+            document.getElementById(config.searchInputId).focus();
+        }
+    }
+
+    function setComboboxSelection(key, option) {
+        const config = comboboxConfigs[key];
+        const state = comboboxState[key];
+        state.selectedId = option.id;
+        document.getElementById(config.hiddenInputId).value = option.value;
+        syncComboboxTrigger(key);
+    }
+
+    function selectComboboxOption(key, optionId) {
+        const config = comboboxConfigs[key];
+        const option = config.dataset.find((item) => item.id === optionId);
+        if (!option) return;
+        setComboboxSelection(key, option);
+        closeCombobox(key, true);
+    }
+
+    function moveComboboxActiveOption(key, direction) {
+        const state = comboboxState[key];
+        if (!state.filteredIds.length) return;
+        const currentIndex = Math.max(state.filteredIds.indexOf(state.activeId), 0);
+        const nextIndex = (currentIndex + direction + state.filteredIds.length) % state.filteredIds.length;
+        state.activeId = state.filteredIds[nextIndex];
+        renderCombobox(key);
+        const activeElement = document.getElementById(`${key}-option-${state.activeId}`);
+        if (activeElement) activeElement.scrollIntoView({ block: 'nearest' });
+    }
+
+    function toRadians(value) {
+        return (value * Math.PI) / 180;
+    }
+
+    function getDistanceKm(fromLat, fromLng, toLat, toLng) {
+        const earthRadiusKm = 6371;
+        const dLat = toRadians(toLat - fromLat);
+        const dLng = toRadians(toLng - fromLng);
+        const a =
+            Math.sin(dLat / 2) ** 2 +
+            Math.cos(toRadians(fromLat)) * Math.cos(toRadians(toLat)) *
+            Math.sin(dLng / 2) ** 2;
+        return earthRadiusKm * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    }
+
+    function findNearestOption(options, latitude, longitude) {
+        let nearest = null;
+        options.forEach((option) => {
+            if (typeof option.latitude !== 'number' || typeof option.longitude !== 'number') return;
+            const distance = getDistanceKm(latitude, longitude, option.latitude, option.longitude);
+            if (!nearest || distance < nearest.distance) {
+                nearest = { option, distance };
+            }
+        });
+        return nearest;
+    }
+
+    function resolveLocationByCoordinates(latitude, longitude) {
+        const cities = locationOptions.filter((option) => option.level === 'City');
+        const counties = locationOptions.filter((option) => option.level === 'County');
+        const states = locationOptions.filter((option) => option.level === 'State');
+
+        const nearestCity = findNearestOption(cities, latitude, longitude);
+        if (nearestCity && nearestCity.distance <= 40) return nearestCity.option;
+
+        const nearestCounty = findNearestOption(counties, latitude, longitude);
+        if (nearestCounty && nearestCounty.distance <= 80) return nearestCounty.option;
+
+        return findNearestOption(states, latitude, longitude)?.option || null;
+    }
+
+    function locateCurrentJurisdiction() {
+        if (!navigator.geolocation) {
+            updateComboboxStatus('location', 'Geolocation is not available in this browser.', true);
+            return;
+        }
+
+        updateComboboxStatus('location', 'Locating your jurisdiction...');
+
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                const matched = resolveLocationByCoordinates(position.coords.latitude, position.coords.longitude);
+                if (!matched) {
+                    updateComboboxStatus('location', 'Could not match your location. Try searching manually.', true);
+                    return;
+                }
+                setComboboxSelection('location', matched);
+                updateComboboxStatus('location', `Located near ${matched.displayLabel}.`);
+                closeCombobox('location', true);
+            },
+            (error) => {
+                const message = error.code === error.PERMISSION_DENIED
+                    ? 'Location permission denied. Search manually instead.'
+                    : 'Unable to determine your location right now.';
+                updateComboboxStatus('location', message, true);
+            },
+            { enableHighAccuracy: false, timeout: 8000, maximumAge: 300000 }
+        );
+    }
+
+    function initializeComboboxes() {
+        Object.values(comboboxConfigs).forEach((config) => {
+            const state = comboboxState[config.key];
+            const trigger = document.getElementById(config.triggerId);
+            const searchInput = document.getElementById(config.searchInputId);
+            const hiddenInput = document.getElementById(config.hiddenInputId);
+            const defaultOption = findOptionByValue(config.dataset, hiddenInput.value);
+
+            if (defaultOption) {
+                state.selectedId = defaultOption.id;
+                hiddenInput.value = defaultOption.value;
+            }
+
+            syncComboboxTrigger(config.key);
+            renderCombobox(config.key);
+
+            trigger.addEventListener('click', () => {
+                if (state.open) {
+                    closeCombobox(config.key, true);
+                } else {
+                    openCombobox(config.key, true);
+                }
+            });
+
+            trigger.addEventListener('keydown', (event) => {
+                if (['Enter', ' ', 'ArrowDown'].includes(event.key)) {
+                    event.preventDefault();
+                    openCombobox(config.key, true);
+                } else if (event.key === 'ArrowUp') {
+                    event.preventDefault();
+                    openCombobox(config.key, true);
+                    moveComboboxActiveOption(config.key, -1);
+                }
+            });
+
+            searchInput.addEventListener('input', (event) => {
+                state.query = event.target.value;
+                state.aiSuggestionIds = [];
+                if (config.key === 'industry') updateComboboxStatus(config.key);
+                renderCombobox(config.key);
+            });
+
+            searchInput.addEventListener('keydown', (event) => {
+                if (event.key === 'ArrowDown') {
+                    event.preventDefault();
+                    moveComboboxActiveOption(config.key, 1);
+                } else if (event.key === 'ArrowUp') {
+                    event.preventDefault();
+                    moveComboboxActiveOption(config.key, -1);
+                } else if (event.key === 'Enter') {
+                    event.preventDefault();
+                    if (state.activeId) selectComboboxOption(config.key, state.activeId);
+                } else if (event.key === 'Escape') {
+                    event.preventDefault();
+                    closeCombobox(config.key, true);
+                }
+            });
+
+            if (config.actionId) {
+                document.getElementById(config.actionId).addEventListener('click', locateCurrentJurisdiction);
+            }
+
+            if (config.aiActionId) {
+                document.getElementById(config.aiActionId).addEventListener('click', () => {
+                    const suggestions = getAiIndustrySuggestions(state.query);
+                    state.aiSuggestionIds = suggestions;
+                    if (!suggestions.length) {
+                        updateComboboxStatus(config.key, `No close AI match for "${state.query}". Try another phrase.`, true);
+                    } else {
+                        state.activeId = suggestions[0];
+                        updateComboboxStatus(config.key, `AI suggestions for "${state.query}"`, false);
+                    }
+                    renderCombobox(config.key);
+                });
+            }
+        });
+
+        document.addEventListener('click', (event) => {
+            const openKey = Object.keys(comboboxConfigs).find((key) => comboboxState[key].open);
+            if (!openKey) return;
+            const wrapper = document.querySelector(`[data-combobox="${openKey}"]`);
+            if (wrapper && !wrapper.contains(event.target)) {
+                closeCombobox(openKey);
+            }
+        });
+    }
+
+    initializeComboboxes();
+
+    document.getElementById('analysisForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        openModal(emailModal, emailInput);
+    });
+
+    function getFocusableElements(modal) {
+        return Array.from(modal.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'))
+            .filter((element) => !element.disabled && !element.hidden);
+    }
+
+    function openModal(modal, preferredFocus) {
+        lastFocusedElement = document.activeElement;
+        modal.classList.add('visible');
+        modal.setAttribute('aria-hidden', 'false');
+        activeModalId = modal.id;
+        const focusTarget = preferredFocus || getFocusableElements(modal)[0];
+        if (focusTarget) focusTarget.focus();
+    }
+
+    function closeModal(modal) {
+        modal.classList.remove('visible');
+        modal.setAttribute('aria-hidden', 'true');
+        if (activeModalId === modal.id) activeModalId = null;
+        if (lastFocusedElement && document.contains(lastFocusedElement)) {
+            lastFocusedElement.focus();
+        }
+    }
+
+    function closeEmailModal() {
+        closeModal(emailModal);
+    }
+
+    function closeTaskDetailModal() {
+        closeModal(taskDetailModal);
+    }
+
+    function getTaskItem(taskId) {
+        return document.querySelector(`.list-item[data-task-id="${taskId}"]`);
+    }
+
+    function syncTaskModalActions() {
+        const item = activeTaskId ? getTaskItem(activeTaskId) : null;
+        const isChecked = item ? item.classList.contains('checked') : false;
+        taskDetailCompleteBtn.disabled = isChecked || !item;
+        taskDetailCompleteBtn.textContent = isChecked ? 'Marked Complete' : 'Mark as Complete';
+    }
+
+    // Submit email and start generation
+    function submitEmail() {
+        const email = emailInput.value.trim();
+        if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            emailInput.setAttribute('aria-invalid', 'true');
+            emailError.hidden = false;
+            emailInput.focus();
+            return;
+        }
+        userEmail = email;
+        closeEmailModal();
+        startGeneration();
+    }
+
+    emailInput.addEventListener('input', function() {
+        this.removeAttribute('aria-invalid');
+        emailError.hidden = true;
+    });
+
+    emailInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            submitEmail();
+        }
+    });
+    emailContinueBtn.addEventListener('click', submitEmail);
+
+    document.querySelectorAll('[data-close-modal]').forEach(button => {
+        button.addEventListener('click', function() {
+            closeModal(document.getElementById(this.dataset.closeModal));
+        });
+    });
+
+    function startGeneration() {
+        emptyState.style.display = 'none';
+        resultsContent.classList.remove('visible');
+        loadingState.style.display = 'flex';
+
+        // Reset steps
+        const steps = [
+            document.getElementById('step1'),
+            document.getElementById('step2'),
+            document.getElementById('step3')
+        ];
+        steps.forEach(s => {
+            s.classList.remove('active', 'done');
+            s.querySelector('.spinner-wrapper').style.display = 'none';
+        });
+
+        function activateStep(index) {
+            if (index >= steps.length) {
+                setTimeout(function() {
+                    loadingState.style.display = 'none';
+                    resultsContent.classList.add('visible');
+                    resultsHeading.focus();
+                }, prefersReducedMotion ? 0 : 120);
+                return;
+            }
+
+            const step = steps[index];
+            step.classList.add('active');
+            step.querySelector('.spinner-wrapper').style.display = 'block';
+
+            setTimeout(function() {
+                step.classList.remove('active');
+                step.classList.add('done');
+                step.querySelector('.spinner-wrapper').style.display = 'none';
+                activateStep(index + 1);
+            }, prefersReducedMotion ? 0 : 1400);
+        }
+
+        activateStep(0);
+    }
+
+    function openTaskDetail(taskId) {
+        const detail = taskDetails[taskId];
+        if (!detail) return;
+        activeTaskId = taskId;
+
+        taskDetailTitle.textContent = detail.title;
+        taskDetailSource.textContent = detail.source;
+        taskDetailSourceLink.href = detail.sourceUrl || '#';
+        taskDetailExplanation.textContent = detail.explanation;
+        taskDetailNextStep.textContent = detail.nextStep;
+        taskDetailWhy.textContent = detail.whyItMatters;
+        taskDetailNotes.textContent = detail.notes;
+        syncTaskModalActions();
+
+        openModal(taskDetailModal);
+    }
+
+    function toggleCheck(item) {
+        item.classList.toggle('checked');
+        const checkbox = item.querySelector('input[type="checkbox"]');
+        checkbox.checked = item.classList.contains('checked');
+        if (checkbox.checked) {
+            item.classList.remove('just-completed');
+            void item.offsetWidth;
+            item.classList.add('just-completed');
+        }
+        applyFilter();
+    }
+
+    document.querySelectorAll('.task-trigger').forEach(trigger => {
+        trigger.addEventListener('click', function() {
+            openTaskDetail(this.dataset.taskId);
+        });
+    });
+
+    document.querySelectorAll('button.custom-checkbox').forEach(checkbox => {
+        checkbox.addEventListener('click', function(e) {
+            const input = document.getElementById(this.dataset.checkboxFor);
+            input.checked = !input.checked;
+            const item = this.closest('.list-item');
+            item.classList.toggle('checked', input.checked);
+            if (input.checked) {
+                item.classList.remove('just-completed');
+                void item.offsetWidth;
+                item.classList.add('just-completed');
+            }
+            applyFilter();
+            syncTaskModalActions();
+        });
+    });
+
+    taskDetailCloseBtn.addEventListener('click', closeTaskDetailModal);
+    taskDetailCompleteBtn.addEventListener('click', function() {
+        if (!activeTaskId) return;
+        const item = getTaskItem(activeTaskId);
+        if (!item || item.classList.contains('checked')) {
+            syncTaskModalActions();
+            return;
+        }
+
+        item.classList.add('checked');
+        item.classList.remove('just-completed');
+        void item.offsetWidth;
+        item.classList.add('just-completed');
+        const input = item.querySelector('input[type="checkbox"]');
+        if (input) input.checked = true;
+        applyFilter();
+        syncTaskModalActions();
+    });
+
+    [emailModal, taskDetailModal].forEach(modal => {
+        modal.addEventListener('click', function(e) {
+            if (e.target === this) closeModal(this);
+        });
+    });
+
+    document.addEventListener('keydown', function(e) {
+        if (activeModalId && e.key === 'Tab') {
+            const modal = document.getElementById(activeModalId);
+            const focusable = getFocusableElements(modal);
+            if (!focusable.length) return;
+            const first = focusable[0];
+            const last = focusable[focusable.length - 1];
+            if (e.shiftKey && document.activeElement === first) {
+                e.preventDefault();
+                last.focus();
+            } else if (!e.shiftKey && document.activeElement === last) {
+                e.preventDefault();
+                first.focus();
+            }
+        }
+
+        if (e.key === 'Escape') {
+            if (activeModalId === 'taskDetailModal') closeTaskDetailModal();
+            if (activeModalId === 'emailModal') closeEmailModal();
+        }
+    });
+
+    const segmentBtns = document.querySelectorAll('.segment-btn');
+    segmentBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelector('.segment-btn.active').classList.remove('active');
+            document.querySelector('.segment-btn[aria-pressed="true"]').setAttribute('aria-pressed', 'false');
+            this.classList.add('active');
+            this.setAttribute('aria-pressed', 'true');
+            applyFilter();
+        });
+    });
+
+    function applyFilter() {
+        const activeFilter = document.querySelector('.segment-btn.active').dataset.filter;
+        const items = document.querySelectorAll('.list-item');
+        items.forEach(item => {
+            const isChecked = item.classList.contains('checked');
+            if (activeFilter === 'all') {
+                item.hidden = false;
+            } else if (activeFilter === 'pending') {
+                item.hidden = isChecked;
+            } else if (activeFilter === 'done') {
+                item.hidden = !isChecked;
+            }
+        });
+    }
+</script>
+
+</body></html>
