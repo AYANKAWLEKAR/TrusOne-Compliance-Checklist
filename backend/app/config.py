@@ -28,6 +28,21 @@ def _ensure_sslmode_for_supabase(url: str) -> str:
     return f"{url}{joiner}sslmode=require"
 
 
+def _validate_database_url_template(url: str) -> str:
+    placeholders = (
+        "<your-project-ref>",
+        "<project-ref>",
+        "<your-password>",
+        "<password>",
+    )
+    if any(token in url for token in placeholders):
+        raise ValueError(
+            "DATABASE_URL still contains template placeholders. Replace it with a real database URL "
+            "from your Supabase or PostgreSQL instance."
+        )
+    return url
+
+
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=_ENV_FILE if _ENV_FILE.is_file() else None,
