@@ -6,40 +6,36 @@ export type SourceCitation = {
   excerpt?: string | null;
 };
 
-export type ComplianceRequirement = {
-  regulation_id: string;
-  certification_clause: string;
-  business_activity: string;
-  citations: string[];
+export type TaskDetail = {
+  explanation: string;
+  next_step: string;
+  why_it_matters: string;
+  notes: string;
 };
 
-export type RegulatoryDependency = {
-  primary_agency: string;
-  related_agency: string;
-  relationship: string;
+export type TaskItem = {
+  id: string;
+  title: string;
+  source: string;
+  source_url?: string | null;
+  priority_label: string;
+  meta_label: string;
+  default_completed: boolean;
   citations: string[];
+  detail: TaskDetail;
 };
 
-export type RequiredDocument = {
-  document_type: string;
-  description: string;
-  required_by: string;
-  citations: string[];
-};
-
-export type RequiredWorkflow = {
-  workflow_name: string;
-  description: string;
-  frequency: string;
-  responsible_party: string;
-  citations: string[];
+export type ComplianceReportSummary = {
+  analysis_text: string;
+  total_tasks: number;
+  completed_tasks: number;
+  open_tasks: number;
+  mapped_sources: string[];
 };
 
 export type ComplianceReportResponse = {
-  compliance_certification_requirements: ComplianceRequirement[];
-  regulatory_dependencies: RegulatoryDependency[];
-  required_documents: RequiredDocument[];
-  required_workflows: RequiredWorkflow[];
+  summary: ComplianceReportSummary;
+  tasks: TaskItem[];
   sources: SourceCitation[];
 };
 
@@ -47,6 +43,24 @@ export type ComplianceReportRequest = {
   location: string;
   industry: string;
   company_size: string;
+  compliance_status?: string;
+  location_city?: string;
+  location_county?: string;
+  location_state?: string;
+};
+
+export type ComplianceLocationOption = {
+  value: string;
+  display_label: string;
+  city: string;
+  county: string;
+  state: string;
+  aliases: string[];
+};
+
+export type ComplianceOptionsResponse = {
+  industries: string[];
+  locations: ComplianceLocationOption[];
 };
 
 export type GeoIPResponse = {

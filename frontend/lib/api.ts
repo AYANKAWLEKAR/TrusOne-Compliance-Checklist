@@ -1,4 +1,5 @@
 import {
+  ComplianceOptionsResponse,
   ComplianceReportRequest,
   ComplianceReportResponse,
   GeoIPResponse,
@@ -32,6 +33,10 @@ export function createComplianceReport(
     method: "POST",
     body: JSON.stringify(payload),
   });
+}
+
+export function fetchComplianceOptions(): Promise<ComplianceOptionsResponse> {
+  return request("/api/compliance/options");
 }
 
 export function resolveGeoIP(): Promise<GeoIPResponse> {
